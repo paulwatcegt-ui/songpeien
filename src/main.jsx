@@ -19,7 +19,7 @@ function Spark({ className = '' }) {
 function Artwork({ kind }) {
   return <div className={`art art-${kind}`} aria-hidden="true">
     <span className="art-index">SP—{kind === 'geometry' ? '001' : kind === 'type' ? '002' : '003'} / FORM STUDY</span>
-    <img className="art-image" src={`/media/work-${kind}.svg`} alt="" draggable="false"/>
+    <img className="art-image" src={`${import.meta.env.BASE_URL}media/work-${kind}.svg`} alt="" draggable="false"/>
     <span className="art-bottom">EXPERIMENTAL COMPOSITION <span>↗</span></span>
   </div>;
 }
@@ -75,7 +75,7 @@ function App() {
       <section className="about section shell" id="about"><div className="section-kicker"><span>01 / ABOUT</span><span>关于这个空间</span></div><div className="about-grid reveal"><div className="monogram" aria-label="SP 字母构图"><span>S</span><span>P</span><Spark/><small>SONG PEIEN / PERSONAL SPACE</small></div><div className="about-copy"><span className="small-label">A LITTLE ABOUT ME</span><h2>我是宋培恩。<br/>很高兴，<span>在这里遇见你。</span></h2><p>这是我的个人空间。用来收集作品、整理想法，也为新的探索留一个位置。</p><p>有些想法已经成形，有些还在路上。比起急着给它们一个定义，我更愿意保持开放，让好奇心带来下一步。</p><a className="text-link" href={`mailto:${email}`}>{email}<span>↗</span></a></div></div></section>
       <section className="works section shell" id="work"><div className="section-kicker"><span>02 / SELECTED EXPLORATIONS</span><span>一些有趣的尝试</span></div><div className="section-heading reveal"><h2>想法，<span className="serif">不止一种形状。</span></h2><p>从一个简单的念头出发。<br/>看看它能走到哪里。</p></div><div className="sample-notice"><span className="notice-dot"/> 以下为原创抽象构图 · 布局示意，非真实项目</div><div className="work-grid">{works.map(work => <button key={work.id} className={`work-card work-${work.kind} reveal`} onClick={event => openWork(work, event)} aria-haspopup="dialog" aria-label={`查看${work.title}，布局示意，非真实项目`}><Artwork kind={work.kind}/><div className="work-caption"><div><small>/{work.id}</small><h3>{work.title}</h3></div><span>{work.tag}<span className="work-arrow">↗</span></span></div><div className="work-sample">布局示意，非真实项目</div></button>)}</div></section>
       <section className="contact section contact-dither" id="contact">
-        <DitherVeil className="contact-veil" src="/media/contact-sculpture-iridescent-v2.png" fit="contain" pattern="floyd" pixelSize={2} inkColor="#ece8f5" paperColor="#101014" revealRadius={200} softness={0.6} linger={1} brightness={0.025} clickBurst/>
+        <DitherVeil className="contact-veil" src={`${import.meta.env.BASE_URL}media/contact-sculpture-iridescent-v2.png`} fit="contain" pattern="floyd" pixelSize={2} inkColor="#ece8f5" paperColor="#101014" revealRadius={200} softness={0.6} linger={1} brightness={0.025} clickBurst/>
         
         <div className="shell contact-inner">
           <div className="section-kicker"><span>03 / SAY HELLO</span><span>从一句你好开始</span></div>
