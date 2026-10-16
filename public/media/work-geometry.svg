@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="640" viewBox="0 0 1700 640">
+  <rect width="1700" height="640" fill="#27282f"/>
+  <defs><pattern id="rings" width="180" height="180" patternUnits="userSpaceOnUse"><circle cx="90" cy="90" r="69" fill="none" stroke="#7886ff" stroke-width="29"/></pattern></defs>
+  <g transform="translate(480 -270) rotate(-18 700 500)"><rect width="1400" height="1200" fill="url(#rings)"/></g>
+  <path d="M43 0h14l-2 32L77 9l10 10-23 24 36-1v15l-35-3 24 24-11 11-24-25 3 36H42l3-35-24 24-10-11 23-24L0 57V42l34 3L10 21 21 10l24 24z" fill="#ff542a" transform="translate(150 105) scale(1.1)"/>
+  <text x="70" y="330" fill="#f1eff5" font-family="Arial,sans-serif" font-weight="900" font-size="74" letter-spacing="-3">MAKE ROOM<tspan x="70" dy="76">FOR THE UNEXPECTED.</tspan></text>
+</svg>

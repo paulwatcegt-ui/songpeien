@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="800" viewBox="0 0 900 800">
+  <rect width="900" height="800" fill="#25346f"/>
+  <g transform="rotate(-10 450 400)" fill="#f1eff5" font-family="Arial,sans-serif" font-weight="800" font-size="380" letter-spacing="-30"><text x="80" y="370">Aa</text><text x="80" y="660">Bb.</text></g>
+  <text x="660" y="245" font-family="Arial,sans-serif" fill="#ff542a" font-size="160">↗</text>
+  <text transform="translate(850 145) rotate(90)" fill="#f1eff5" font-family="Arial,sans-serif" font-size="14" letter-spacing="4">LET LETTERS PLAY.</text>
+</svg>

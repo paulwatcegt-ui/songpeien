@@ -1,0 +1,12 @@
+.cursor-effects {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  pointer-events: none;
+}
+.art-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+@media (hover: none), (pointer: coarse) {
+  .cursor-effects { display: none; }
+}

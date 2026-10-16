@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="800" viewBox="0 0 900 800">
+  <rect width="900" height="800" fill="#633e4c"/>
+  <circle cx="210" cy="410" r="350" fill="#ff542a"/>
+  <path d="M465 145L865 252 758 652 358 545z" fill="#172049"/>
+  <g fill="#fff3ec" font-size="142" letter-spacing="-9"><text x="60" y="390" font-family="Arial,sans-serif" font-weight="700">a little</text><text x="60" y="530" font-family="Georgia,serif" font-style="italic">contrast.</text></g>
+</svg>

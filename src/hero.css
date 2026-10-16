@@ -1,0 +1,50 @@
+/* Reference-led first screen; the remaining sections keep their existing theme. */
+.header{position:sticky;top:0;z-index:20;background:#101014f0;backdrop-filter:blur(16px)}
+.header-inner{position:relative;height:90px;display:flex;align-items:center;gap:40px;border:0}
+.logo{font-size:43px;font-weight:900;letter-spacing:-2px;line-height:1;min-width:50px;display:flex;align-items:center}
+.header nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;font-size:12px}
+.header nav a{white-space:nowrap;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+
+
+.nav-group{height:48px;display:flex;align-items:center;border-radius:40px;background:#202028;padding:5px}
+.nav-group a{padding:0 24px;height:38px;border-radius:30px;color:#ddd9e6}
+.nav-group a:hover,.nav-group a[aria-current]{background:#353540}
+
+.header-mail{margin-left:auto;display:flex;gap:20px;align-items:center;background:#202028;border-radius:40px;height:48px;min-width:205px;padding:5px 19px 5px 6px;font-size:12px;transition:background .2s}
+.header-mail:hover{background:#2c2c38}.mail-icon{width:36px;height:36px;border-radius:50%;background:#353540;color:#f1eff5;display:grid;place-items:center;font-size:25px}.mail-arrow{margin-left:auto;font-size:15px}
+.hero{background:#101014;position:relative;height:calc(100svh - 90px);min-height:610px;display:flex;flex-direction:column;overflow:hidden;color:#f1eff5}
+.hero-stage{position:relative;flex:1;min-height:400px;isolation:isolate}
+.hero-halo{position:absolute;left:50%;top:48%;width:clamp(280px,30vw,470px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#17151e 0%,#312139aa 30%,#6b3b4a66 44%,#6362b980 56%,#3e255e88 60%,#0000 69%);filter:blur(14px);opacity:.4;z-index:-1}
+.hero-title{position:absolute;left:0;right:0;top:40%;transform:translateY(-50%);text-align:center;z-index:1;padding:0 24px}
+.hero-eyebrow{display:block;font-size:10px;font-weight:400;letter-spacing:2.7px;color:#aaa6b6;margin-bottom:20px}
+.hero h1{font-weight:500;font-size:clamp(38px,4vw,68px);letter-spacing:-3px;line-height:1.22;margin:0}
+.hero h1>span{display:block;font-size:clamp(30px,3.4vw,58px);letter-spacing:-2px;white-space:nowrap;margin-top:3px}
+.hero h1 em{font-style:normal;color:#aaa6b6}
+.hero-hands{position:absolute;z-index:2;left:0;top:58%;transform:translateY(-50%);display:block;width:100%;aspect-ratio:3;height:auto;pointer-events:none;user-select:none}
+.hand{position:absolute;inset:0;display:block;width:100%;height:auto;will-change:transform}
+.hand-human{clip-path:inset(0 49.6% 0 0);transform:translateX(-15.5%)}
+.hand-robot{clip-path:inset(0 0 0 50.4%);transform:translateX(15.5%)}
+/* Continuous movement is an explicit request; retain it even with reduced motion. */
+.hero-hands.is-ready .hand-human{animation:human-loop 12s cubic-bezier(.45,0,.55,1) infinite both!important}
+.hero-hands.is-ready .hand-robot{animation:robot-loop 12s cubic-bezier(.45,0,.55,1) infinite both!important}
+.hero-hands[data-active="false"] .hand{animation-play-state:paused!important}
+@keyframes human-loop{0%,100%{transform:translateX(-15.5%)}50%{transform:translateX(var(--touch-shift,0.691%))}}
+@keyframes robot-loop{0%,100%{transform:translateX(15.5%)}50%{transform:translateX(calc(-1 * var(--touch-shift,0.691%)))}}
+.hero-footer{position:relative;z-index:3;display:grid;grid-template-columns:1fr 90px 1fr;align-items:end;gap:30px;padding:20px 0 38px;background:transparent}
+.hero-intro>span{font-size:11px;color:#aaa6b6}.hero-intro p{font-size:15px;line-height:1.5;color:#ddd9e6;margin:22px 0 0;letter-spacing:-.25px}
+.hero-scroll{display:flex;align-items:center;justify-content:center;width:40px;height:48px;border-left:1px solid #e4dfef70;justify-self:center}.hero-scroll>span{font-size:16px;opacity:0;transform:translateY(-5px);transition:opacity .2s,transform .2s}.hero-scroll:hover>span,.hero-scroll:focus-visible>span{opacity:1;transform:none}
+.hero-tags{display:flex;gap:7px;justify-content:flex-end;padding-bottom:0}.hero-tags a{border:1px solid #ffffff38;border-radius:30px;padding:15px 25px;color:#b9b5c5;font-size:11px;white-space:nowrap;transition:background .2s,color .2s}.hero-tags a:hover{color:#f1eff5;background:#252530}
+
+@media(min-width:1900px){.hero-stage{max-width:2100px;width:100%;margin-inline:auto}.hero-title{top:41%}.hero-hands{top:58%}}
+@media(max-width:1100px){.header-inner{gap:24px;height:80px}.header nav{font-size:11px}.nav-group a{padding-inline:20px}.header-mail{min-width:185px}.hero{height:calc(100svh - 80px);min-height:540px}.hero-stage{min-height:360px}.hero-title{top:42%}.hero-hands{top:60%}.hero-footer{padding-bottom:30px;grid-template-columns:1fr 40px 1fr;gap:15px}.hero-intro p{font-size:13px;margin-top:20px}.hero-tags a{padding:13px 21px}.hero h1{letter-spacing:-2px}.hero h1>span{letter-spacing:-1.5px}.hero-halo{width:340px}}
+@media(max-width:760px){.header-inner{height:76px;gap:14px}.logo{font-size:35px;min-width:25px}.header nav{gap:6px;font-size:10px}.nav-group{height:38px;padding:4px}.nav-group a{height:30px;padding:0 12px}.header-mail{height:38px;min-width:0;margin-left:auto;padding:4px;background:#111}.header-mail>.mail-icon{width:30px;height:30px;background:#111;font-size:22px}.header-mail>span:not(.mail-icon){display:none}.hero{height:calc(100svh - 76px);min-height:590px}.hero-stage{min-height:360px}.hero-title{top:37%;padding-inline:16px}.hero-eyebrow{font-size:7px;letter-spacing:1.8px;margin-bottom:16px}.hero h1{font-size:40px;letter-spacing:-2px}.hero h1>span{font-size:28px;letter-spacing:-1px;margin-top:9px}.hero-hands{width:190%;max-width:none;left:-45%;top:58%}.hero-halo{width:290px;top:42%;filter:blur(12px)}.hero-footer{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:24px;padding:15px 0 26px}.hero-intro{flex:1}.hero-intro>span{font-size:9px}.hero-intro p{font-size:12px;line-height:1.7;margin-top:15px}.hero-scroll{height:34px;width:27px;flex-shrink:0}.hero-scroll>span{opacity:1;font-size:13px}.hero-tags{flex-basis:100%;justify-content:flex-start;gap:7px}.hero-tags a{font-size:10px;padding:11px 22px}}
+@media(max-width:370px){.header-inner{gap:10px}.nav-group a{padding-inline:10px}.hero h1>span{font-size:25px}.hero-tags a{padding-inline:18px}}
+@media(prefers-reduced-motion:reduce){.hero-halo{animation:none}.header a,.hero a,.hero-scroll>span{transition:none}}
+
+/* Keep the central halo still; animate only its outer spectral rim. */
+.hero-halo{pointer-events:none;transform:translate(-50%,-50%);filter:blur(14px);opacity:.7;animation:none!important;will-change:auto}
+.hero-halo::before{content:"";position:absolute;inset:-12%;border-radius:50%;background:conic-gradient(from 0deg,#c9d0ff00 0deg,#c9d0ffb3 65deg,#b9ecffc4 115deg,#ffe5b2b3 175deg,#f0c8ffbf 235deg,#d5d5ff80 300deg,#c9d0ff00 360deg);mask-image:radial-gradient(closest-side,transparent 78%,#000 86%,#000 94%,transparent 100%);opacity:.8;filter:blur(2px);will-change:transform}
+.hero-halo::after{content:none}
+.hero-stage:has(.hero-hands.is-ready) .hero-halo::before{animation:halo-edge-flow 12s linear infinite!important}
+.hero-stage:has(.hero-hands[data-active="false"]) .hero-halo::before{animation-play-state:paused!important}
+@keyframes halo-edge-flow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
