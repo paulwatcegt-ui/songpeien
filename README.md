@@ -53,3 +53,11 @@ React + Vite 个人网站，所有页面使用炭黑底色（#101014）与柔白
 - 这是项目内独立编写的 Canvas 效果，不依赖 React Bits Pro 或许可密钥。
 - Canvas 装饰不拦截点击和滚动，并跟随原生作品弹窗切换显示层。静止后停止绘制，离开窗口或隐藏标签页时清除并暂停。
 - 仅在支持精确指针与悬停的设备开启，触屏关闭。系统减少动态效果模式使用 12 个快速跟随点和较短的尾部，关闭弹性回摆和柔光。无新增依赖。
+
+## GitHub 与 Cloudflare Pages
+
+- 源码仓库：`https://github.com/paulwatcegt-ui/songpeien`，生产分支为 `main`。
+- 在 Cloudflare Pages 选择连接 Git，授权这个仓库；构建命令为 `npm run build`，输出目录为 `dist`，根目录使用仓库根目录。
+- Node.js 版本由 `.node-version` 固定为 22.14.0；页面不需要任何生产环境密钥。
+- Pages 完成 Git 连接后，推送 `main` 会自动构建和更新正式网站；本地保存不会直接上线。
+- GitHub Actions 仅验证构建，不再发布到 GitHub Pages。已有 GitHub Pages 站点如需下线，需要在仓库的 Pages 设置中另行取消发布。
