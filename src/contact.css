@@ -1,5 +1,5 @@
 .contact-dither{position:relative;isolation:isolate;overflow:hidden;background:#101014;color:#f1eff5;min-height:max(100svh,760px);padding-top:64px}
-.contact-dither .contact-veil{position:absolute;left:50%;top:65px;bottom:110px;transform:translateX(-50%);width:min(56vw,780px);height:auto;z-index:0;background:#101014}
+.contact-dither .contact-veil{position:absolute;left:50%;top:65px;bottom:110px;transform:translateX(-50%);width:min(56vw,780px);height:auto;z-index:0;background:#101014;pointer-events:auto}
 .contact-dither .contact-inner{position:relative;z-index:2;pointer-events:none;min-height:max(calc(100svh - 64px),696px)}
 .contact-dither a{pointer-events:auto}
 .contact-dither .section-kicker{border-color:#f1eff520;margin-bottom:45px;background:transparent}

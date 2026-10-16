@@ -55,7 +55,7 @@ function App() {
     <header className="header"><div className="shell header-inner">
       <a className="logo" href="#home" aria-label="宋培恩，返回首页">s</a>
       <nav aria-label="主导航">
-        <div className="nav-group"><a href="#work" aria-current={active === 'work' ? 'location' : undefined}>精选作品</a><a href="#contact" aria-current={active === 'contact' ? 'location' : undefined}>联系</a></div>
+        <div className="nav-group"><a href="#work" aria-current={active === 'work' ? 'location' : undefined}>作品</a><a href="#contact" aria-current={active === 'contact' ? 'location' : undefined}>联系</a></div>
       </nav>
       <a className="header-mail" href={`mailto:${email}`} aria-label="给宋培恩发送邮件"><span className="mail-icon" aria-hidden="true">◇</span><span>打个招呼</span><span className="mail-arrow" aria-hidden="true">↗</span></a>
     </div></header>
@@ -63,7 +63,7 @@ function App() {
       <section className="hero" id="home">
         <div className="hero-stage">
           <div className="hero-halo" aria-hidden="true"/>
-          <div className="hero-title"><span className="hero-eyebrow">SONG PEIEN · PERSONAL SPACE</span><h1>宋培恩<span><em>保持好奇，</em>持续探索。</span></h1></div>
+          <div className="hero-title"><span className="hero-eyebrow">SONG PEIEN · PERSONAL SPACE</span><h1><span><em>保持好奇，</em>持续探索</span></h1></div>
           <HeroHands/>
         </div>
         <div className="shell hero-footer">
