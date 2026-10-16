@@ -48,3 +48,26 @@
 .hero-stage:has(.hero-hands.is-ready) .hero-halo::before{animation:halo-edge-flow 12s linear infinite!important}
 .hero-stage:has(.hero-hands[data-active="false"]) .hero-halo::before{animation-play-state:paused!important}
 @keyframes halo-edge-flow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* Small screens: keep navigation tappable and both hands in the composition. */
+@media(max-width:760px){
+  .header-inner{height:72px;gap:8px;justify-content:space-between}
+  .header nav{position:static;transform:none;margin-left:auto;margin-right:auto;font-size:12px}
+  .logo,.header-mail{min-width:44px;min-height:44px;justify-content:center}
+  .header-mail{margin-left:0;background:transparent}
+  .nav-group{height:48px;padding:2px}.nav-group a{height:44px;padding-inline:14px}
+  .hero{height:auto;min-height:calc(100svh - 72px)}
+  .hero-stage{flex:1 0 auto;min-height:clamp(350px,58svh,560px)}
+  .hero-title{top:30%;padding-inline:20px}
+  .hero-eyebrow{font-size:9px;letter-spacing:1.5px}
+  .hero h1{font-size:clamp(36px,10vw,48px)}
+  .hero h1>span{font-size:clamp(23px,6.3vw,34px);white-space:normal;line-height:1.45}
+  .hero-hands{width:140%;left:-20%;top:66%}
+  .hero-halo{width:clamp(230px,68vw,330px);top:44%;opacity:.5}
+  .hero-footer{flex:none;gap:18px;padding:18px 0 28px}
+  .hero-intro>span{font-size:11px}.hero-intro p{font-size:14px;margin-top:12px}
+  .hero-scroll{width:44px;height:44px}
+  .hero-tags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:8px}
+  .hero-tags a{display:flex;justify-content:center;align-items:center;min-height:44px;padding:10px 8px;font-size:12px}
+}
+@media(max-width:360px){.nav-group a{padding-inline:10px}.header nav{font-size:11px}}
+@media(max-width:760px) and (orientation:landscape){.hero-stage{min-height:340px}.hero-hands{width:110%;left:-5%;top:70%}}
