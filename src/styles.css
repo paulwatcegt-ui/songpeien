@@ -24,3 +24,17 @@
   .work-dialog .art{height:auto;aspect-ratio:1.1}
   .dialog-copy p{font-size:14px}
 }
+
+.email-text{cursor:text;user-select:text;pointer-events:auto}.email-text:hover{color:inherit}
+
+.email-copy-wrap{position:relative;display:inline-block;max-width:100%;pointer-events:auto}
+button.email-copy{background:transparent;border:0;border-bottom:1px solid currentColor;text-align:left;cursor:pointer;min-height:44px;touch-action:manipulation;user-select:text}
+button.email-copy:hover{color:var(--blue)}
+.email-copy-status{position:absolute;top:100%;left:0;margin-top:6px;font-size:12px;line-height:1.6;color:var(--muted);white-space:nowrap;pointer-events:none}
+.contact-details>.email-copy-wrap{flex-shrink:0}
+.contact-dither button.contact-email{background:#101014;border-bottom:2px solid currentColor}
+@media(max-width:760px){.contact-details>.email-copy-wrap{width:100%}}
+
+/* Prominent copy feedback, clear of the email and page layout. */
+.email-copy-status{position:fixed;top:auto;bottom:max(28px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:1000;margin:0;padding:14px 24px;border:1px solid #c4b5fd80;border-radius:14px;background:#302842;color:#fff;font-size:15px;font-weight:600;line-height:1.5;box-shadow:0 10px 36px #0008;max-width:calc(100vw - 32px);white-space:normal;text-align:center}
+.email-copy-status:empty{display:none}

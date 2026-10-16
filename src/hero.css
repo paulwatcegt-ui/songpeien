@@ -71,3 +71,8 @@
 }
 @media(max-width:360px){.nav-group a{padding-inline:10px}.header nav{font-size:11px}}
 @media(max-width:760px) and (orientation:landscape){.hero-stage{min-height:340px}.hero-hands{width:110%;left:-5%;top:70%}}
+
+/* Keep the scroll cue visible. */
+.hero-scroll>span{opacity:1;transform:none}
+
+.hero .hero-scroll>span{opacity:1;transform:none}
