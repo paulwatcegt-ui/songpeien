@@ -96,3 +96,43 @@ button.email-copy:hover{color:var(--blue)}
 .about-copy .text-link{margin-top:0;font-size:13px;padding:12px 0;border-bottom-color:#ffffff50}
 @media(max-width:1100px) and (min-width:761px){.about-grid{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:7%}.monogram.about-portrait{height:410px}.about-copy h2{font-size:30px}.about-copy p{font-size:13px;line-height:2}}
 @media(max-width:760px){.about-grid{grid-template-columns:1fr;gap:24px}.monogram.about-portrait{height:clamp(330px,95vw,460px);aspect-ratio:auto;width:100%;max-width:420px;margin-inline:auto}.about-portrait img{mask-image:linear-gradient(to bottom,#000 0%,#000 80%,transparent 100%)}.about-copy{padding:0}.about-copy h2{font-size:clamp(27px,7.2vw,36px);margin:18px 0 24px;line-height:1.55}.about-copy p{font-size:14px;max-width:none;line-height:1.95}.about-copy .email-copy-wrap{margin-top:10px}}
+
+/* Live project: a local screenshot, with the interactive site opened on demand. */
+.art-project{background:#700711}
+.project-cover{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .6s ease}
+.work-card:hover .project-cover{transform:scale(1.025)}
+.project-visit{display:inline-flex;align-items:center;gap:32px;padding:13px 20px;min-height:48px;margin-top:12px;background:#e9e5f2;color:#17141e;border:1px solid transparent;border-radius:999px;font-size:14px}
+.project-visit:hover{background:#cfc1ef}
+@media(max-width:760px){.work-card:first-child .art-project{aspect-ratio:3/2}.work-dialog .art-project{aspect-ratio:3/2}.project-cover{object-fit:contain}}
+@media(prefers-reduced-motion:reduce){.project-cover{transition:none}.work-card:hover .project-cover{transform:none}}
+
+
+.project-preview-button{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left}
+.project-card-link{display:inline-flex;align-items:center;min-height:44px;font-size:12px;white-space:nowrap;color:#ddd9e6}
+.project-card-link:hover{color:var(--blue)}
+
+/* A consistent full-width presentation for both remaining projects. */
+.work-grid{grid-template-columns:minmax(0,1fr);gap:64px}
+.work-grid>.work-card{grid-column:1/-1}
+.work-grid>.work-card .art{height:550px}
+.work-type .art-image{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+@media(max-width:760px){.work-grid{gap:38px}.work-grid>.work-card .art{height:auto;aspect-ratio:3/2}}
+
+.work-grid>.typography-heading{grid-column:1/-1;margin-bottom:-36px;padding-top:12px}
+@media(max-width:760px){.work-grid>.typography-heading{margin-bottom:-14px;padding-top:8px}}
+
+/* Separate the two project sections using the site's existing line tone. */
+.work-grid>.typography-heading{border-top:1px solid var(--line);padding-top:56px}
+@media(max-width:760px){.work-grid>.typography-heading{padding-top:32px}}
+
+/* Section labels sit below their divider across all three sections. */
+.section-kicker,.contact .section-kicker,.contact-dither .section-kicker{border-bottom:0;border-top:1px solid var(--line);padding-top:24px;padding-bottom:0}
+@media(max-width:760px){.section-kicker,.contact .section-kicker,.contact-dither .section-kicker{padding-top:19px}}
+
+/* Clearer section markers while retaining the restrained dark palette. */
+.section-kicker,.contact .section-kicker,.contact-dither .section-kicker{font-size:12px;font-weight:600;letter-spacing:1.8px;line-height:1.7}
+.section-kicker>span:first-child{color:#c7b8f4}
+.section-kicker>span:last-child,.contact .section-kicker>span:last-child,.contact-dither .section-kicker>span:last-child{font-size:13px;font-weight:500;color:#e0dce9;letter-spacing:.6px}
+@media(max-width:760px){.section-kicker,.contact .section-kicker,.contact-dither .section-kicker{font-size:11px;letter-spacing:1.2px}.section-kicker>span:last-child,.contact .section-kicker>span:last-child,.contact-dither .section-kicker>span:last-child{font-size:12px}}
+
+.section-kicker>span:first-child,.section-kicker>span:last-child,.contact .section-kicker>span:last-child,.contact-dither .section-kicker>span:last-child{color:#f1eff5}

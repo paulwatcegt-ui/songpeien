@@ -10,14 +10,14 @@ import ExplorationArt from './components/ExplorationArt';
 
 const email = 'songpeien@163.com';
 const works = [
-  { id: '01', kind: 'geometry', title: '秩序之外', en: 'BEYOND THE GRID', tag: '几何 / GEOMETRY', text: '圆、直线与留白。让规则的形状在不规则的排列中，产生新的节奏。', note: '以重复的圆环与错位关系，观察秩序和变化之间的张力。' },
+  { id: '01', kind: 'virtual', title: 'S · 灵感实验室', en: 'S — VIRTUAL CHARACTER', tag: '交互网页 / WEB', text: '相同的品味，让我们相遇。以数字人物与动态影像为核心，构建一个邀请交流和共同创作的交互页面。', note: '鼠标横移控制影像进度，配合打字机文案、移动端菜单和邮箱复制交互。', url: 'https://s-virtual-character.pages.dev/', cover: 'media/work-s-virtual-character-subject.png' },
   { id: '02', kind: 'type', title: '字有引力', en: 'TYPE IN MOTION', tag: '字体 / TYPOGRAPHY', text: '把文字当作形状，让大小、间距与方向成为另一种表达。', note: '用超大字形、紧密字距和裁切，探索文字从阅读到观看的转变。' },
-  { id: '03', kind: 'color', title: '色彩的温度', en: 'A STUDY IN COLOR', tag: '色彩 / COLOR', text: '冷与暖，相遇与重叠。寻找不同颜色之间有趣的关系。', note: '用橙色、钴蓝与暖白的并置，观察色彩如何改变空间的感受。' },
 ];
 function Spark({ className = '' }) {
   return <svg className={className} viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><path d="M43 0h14l-2 32L77 9l10 10-23 24 36-1v15l-35-3 24 24-11 11-24-25 3 36H42l3-35-24 24-10-11 23-24L0 57V42l34 3L10 21 21 10l24 24z"/></svg>;
 }
-function Artwork({ kind }) {
+function Artwork({ kind, cover }) {
+  if (cover) return <div className="art art-project" aria-hidden="true"><img className="project-cover" src={`${import.meta.env.BASE_URL}${cover}`} alt="" width="1440" height="960" loading="lazy" decoding="async"/></div>;
   return <div className={`art art-${kind}`} aria-hidden="true">
     <span className="art-index">SP—{kind === 'geometry' ? '001' : kind === 'type' ? '002' : '003'} / FORM STUDY</span>
     <img className="art-image" src={`${import.meta.env.BASE_URL}media/work-${kind}.svg`} alt="" draggable="false"/>
@@ -90,7 +90,7 @@ function App() {
         </div>
       </section>
       <section className="about section shell" id="about"><div className="section-kicker"><span>01 / ABOUT</span><span>关于这个空间</span></div><div className="about-grid reveal"><ExplorationArt/><div className="about-copy"><span className="small-label">A LITTLE ABOUT ME</span><h2>我是宋培恩。<br/>很高兴，<span>在这里遇见你。</span></h2><p>这是我的个人空间。用来收集作品、整理想法，也为新的探索留一个位置。</p><p>有些想法已经成形，有些还在路上。比起急着给它们一个定义，我更愿意保持开放，让好奇心带来下一步。</p><CopyEmail className="text-link email-text"/></div></div></section>
-      <section className="works section shell" id="work"><div className="section-kicker"><span>02 / SELECTED EXPLORATIONS</span><span>一些有趣的尝试</span></div><div className="section-heading reveal"><h2>想法，<span className="serif">不止一种形状。</span></h2><p>从一个简单的念头出发。<br/>看看它能走到哪里。</p></div><div className="sample-notice"><span className="notice-dot"/> 以下为原创抽象构图 · 布局示意，非真实项目</div><div className="work-grid">{works.map(work => <button key={work.id} className={`work-card work-${work.kind} reveal`} onClick={event => openWork(work, event)} aria-haspopup="dialog" aria-label={`查看${work.title}，布局示意，非真实项目`}><Artwork kind={work.kind}/><div className="work-caption"><div><small>/{work.id}</small><h3>{work.title}</h3></div><span>{work.tag}<span className="work-arrow">↗</span></span></div><div className="work-sample">布局示意，非真实项目</div></button>)}</div></section>
+      <section className="works section shell" id="work"><div className="section-kicker"><span>02 / SELECTED EXPLORATIONS</span><span>一些有趣的尝试</span></div><div className="section-heading reveal"><h2>虚拟形象，<span className="serif">让想象有了个性。</span></h2><p>从角色塑造到交互表达。<br/>探索虚拟 IP 与人的连接。</p></div><div className="work-grid">{works.map(work => work.url ? <article key={work.id} className={`work-card work-${work.kind} reveal`}><button className="project-preview-button" type="button" onClick={event => openWork(work, event)} aria-haspopup="dialog" aria-label={`查看${work.title}详情`}><Artwork kind={work.kind} cover={work.cover}/></button><div className="work-caption"><div><small>/{work.id}</small><h3>{work.title}</h3></div><a className="project-card-link" href={work.url} target="_blank" rel="noopener noreferrer" aria-label={`访问${work.title}，新标签页打开`}>访问作品<span className="work-arrow" aria-hidden="true">↗</span></a></div><div className="work-sample">已上线 · 查看项目详情</div></article> : <React.Fragment key={work.id}><div className="section-heading typography-heading reveal"><h2>文字，<span className="serif">也有自己的引力。</span></h2><p>从字形、间距到排列节奏。<br/>探索文字被阅读之外的表达。</p></div><button key={work.id} className={`work-card work-${work.kind} reveal`} onClick={event => openWork(work, event)} aria-haspopup="dialog" aria-label={`查看${work.title}${work.url ? "，已上线交互网页" : "，布局示意，非真实项目"}`}><Artwork kind={work.kind} cover={work.cover}/><div className="work-caption"><div><small>/{work.id}</small><h3>{work.title}</h3></div><span>{work.tag}<span className="work-arrow">↗</span></span></div><div className="work-sample">{work.url ? "已上线 · 查看项目详情" : "布局示意，非真实项目"}</div></button></React.Fragment>)}</div></section>
       <section className="contact section contact-dither" id="contact">
         
         <div className="shell contact-inner">
@@ -105,8 +105,8 @@ function App() {
         </div>
       </section>
     </main>
-    <dialog ref={dialog} className="work-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description" onClose={afterClose} onKeyDown={event => { if (event.key === 'Tab') { const closeButton = event.currentTarget.querySelector('button'); event.preventDefault(); closeButton?.focus(); } }} onClick={event => { if (event.target === event.currentTarget) { const rect = event.currentTarget.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeWork(); } }}>
-      {selected && <><div className="dialog-top"><span>FORM STUDY / {selected.id}</span><button onClick={closeWork} aria-label="关闭作品详情" autoFocus>关闭 ×</button></div><Artwork kind={selected.kind}/><div className="dialog-copy"><span className="small-label">{selected.en}</span><h2 id="dialog-title">{selected.title}</h2><p id="dialog-description">{selected.text}</p><p>{selected.note}</p><div className="sample-notice">布局示意，非真实项目。此构图用于呈现网站效果，后续可替换为真实作品。</div></div></>}
+    <dialog ref={dialog} className="work-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description" onClose={afterClose}  onClick={event => { if (event.target === event.currentTarget) { const rect = event.currentTarget.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeWork(); } }}>
+      {selected && <><div className="dialog-top"><span>{selected.url ? "WEB PROJECT" : "FORM STUDY"} / {selected.id}</span><button onClick={closeWork} aria-label="关闭作品详情" autoFocus>关闭 ×</button></div><Artwork kind={selected.kind} cover={selected.cover}/><div className="dialog-copy"><span className="small-label">{selected.en}</span><h2 id="dialog-title">{selected.title}</h2><p id="dialog-description">{selected.text}</p><p>{selected.note}</p>{selected.url ? <a className="project-visit" href={selected.url} target="_blank" rel="noopener noreferrer">访问作品 <span aria-hidden="true">↗</span><span className="email-copy-announcement">（新标签页打开）</span></a> : <div className="sample-notice">布局示意，非真实项目。此构图用于呈现网站效果，后续可替换为真实作品。</div>}</div></>}
     </dialog>
   </>;
 }
