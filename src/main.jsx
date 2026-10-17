@@ -6,6 +6,7 @@ import './contact.css';
 import HeroHands from './components/HeroHands';
 import DitherVeil from './components/DitherVeil';
 import CursorEffects from './components/CursorEffects';
+import ExplorationArt from './components/ExplorationArt';
 
 const email = 'songpeien@163.com';
 const works = [
@@ -31,13 +32,13 @@ function CopyEmail({ className }) {
     clearTimeout(timer.current);
     try {
       await navigator.clipboard.writeText(email);
-      setMessage('邮箱已复制');
+      setMessage('已复制！');
     } catch {
-      setMessage('复制失败，请选中邮箱手动复制');
+      setMessage('复制失败，请长按邮箱手动复制');
     }
-    timer.current = setTimeout(() => setMessage(''), 3000);
+    timer.current = setTimeout(() => setMessage(''), 2200);
   };
-  return <span className="email-copy-wrap"><button type="button" className={className + ' email-copy'} onClick={copy} aria-label={'复制邮箱 ' + email} title="点击复制邮箱">{email}</button><span className="email-copy-status" role="status" aria-live="polite">{message}</span></span>;
+  return <span className="email-copy-wrap"><button type="button" className={className + ' email-copy'} onClick={copy} aria-label={'复制邮箱 ' + email} title="点击复制邮箱"><span className="email-inline-label">{message || email}</span></button><span className="email-copy-announcement" role="status" aria-live="polite">{message === "已复制！" ? "邮箱地址已复制。" : message}</span></span>;
 }
 function App() {
   const [active, setActive] = useState('home');
@@ -88,7 +89,7 @@ function App() {
           <div className="hero-tags" aria-label="快速浏览"><a href="#about">关于我</a><a href="#work">作品集</a><a href="#contact">聊一聊 ↗</a></div>
         </div>
       </section>
-      <section className="about section shell" id="about"><div className="section-kicker"><span>01 / ABOUT</span><span>关于这个空间</span></div><div className="about-grid reveal"><div className="monogram" aria-label="S 字母构图"><span>S</span><Spark/><small>SONG PEIEN / PERSONAL SPACE</small></div><div className="about-copy"><span className="small-label">A LITTLE ABOUT ME</span><h2>我是宋培恩。<br/>很高兴，<span>在这里遇见你。</span></h2><p>这是我的个人空间。用来收集作品、整理想法，也为新的探索留一个位置。</p><p>有些想法已经成形，有些还在路上。比起急着给它们一个定义，我更愿意保持开放，让好奇心带来下一步。</p><CopyEmail className="text-link email-text"/></div></div></section>
+      <section className="about section shell" id="about"><div className="section-kicker"><span>01 / ABOUT</span><span>关于这个空间</span></div><div className="about-grid reveal"><ExplorationArt/><div className="about-copy"><span className="small-label">A LITTLE ABOUT ME</span><h2>我是宋培恩。<br/>很高兴，<span>在这里遇见你。</span></h2><p>这是我的个人空间。用来收集作品、整理想法，也为新的探索留一个位置。</p><p>有些想法已经成形，有些还在路上。比起急着给它们一个定义，我更愿意保持开放，让好奇心带来下一步。</p><CopyEmail className="text-link email-text"/></div></div></section>
       <section className="works section shell" id="work"><div className="section-kicker"><span>02 / SELECTED EXPLORATIONS</span><span>一些有趣的尝试</span></div><div className="section-heading reveal"><h2>想法，<span className="serif">不止一种形状。</span></h2><p>从一个简单的念头出发。<br/>看看它能走到哪里。</p></div><div className="sample-notice"><span className="notice-dot"/> 以下为原创抽象构图 · 布局示意，非真实项目</div><div className="work-grid">{works.map(work => <button key={work.id} className={`work-card work-${work.kind} reveal`} onClick={event => openWork(work, event)} aria-haspopup="dialog" aria-label={`查看${work.title}，布局示意，非真实项目`}><Artwork kind={work.kind}/><div className="work-caption"><div><small>/{work.id}</small><h3>{work.title}</h3></div><span>{work.tag}<span className="work-arrow">↗</span></span></div><div className="work-sample">布局示意，非真实项目</div></button>)}</div></section>
       <section className="contact section contact-dither" id="contact">
         
