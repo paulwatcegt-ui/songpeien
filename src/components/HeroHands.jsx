@@ -12,7 +12,7 @@ export default function HeroHands() {
   }, []);
 
   return <div ref={layer} className={`hero-hands${ready ? ' is-ready' : ''}`} data-active={visible} aria-hidden="true">
-    <img className="hand hand-human" src={`${import.meta.env.BASE_URL}media/reaching-hands-silver-v2.png`} alt="" fetchPriority="high" decoding="async" onLoad={() => setReady(true)}/>
-    <img className="hand hand-robot" src={`${import.meta.env.BASE_URL}media/reaching-hands-silver-v2.png`} alt="" decoding="async"/>
+    <img className="hand hand-human" src={`${import.meta.env.BASE_URL}media/reaching-hands-silver-v2.webp`} alt="" fetchPriority="high" decoding="async" onLoad={() => setReady(true)}/>
+    <img className="hand hand-robot" src={`${import.meta.env.BASE_URL}media/reaching-hands-silver-v2.webp`} alt="" decoding="async"/>
   </div>;
 }

@@ -38,6 +38,7 @@
   .contact-dither footer>a{min-height:44px;display:inline-flex;align-items:center}
 }
 @media(min-width:761px){.contact-dither .contact-veil{top:1px}}
+.deferred-sculpture{width:100%;height:100%;object-fit:contain;filter:grayscale(1) invert(1);mix-blend-mode:screen;opacity:.8}
 
 /* Keep secondary copy legible on desktop and tablet. */
 @media(min-width:761px){.contact-dither .contact-title .small-label,.contact-art-caption>span,.contact-art-caption p,.contact-art-caption small{font-size:12px;line-height:1.8}.contact-dither .contact-title .small-label{display:block;white-space:normal}}

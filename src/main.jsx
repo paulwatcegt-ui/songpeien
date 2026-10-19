@@ -4,13 +4,13 @@ import './styles.css';
 import './hero.css';
 import './contact.css';
 import HeroHands from './components/HeroHands';
-import DitherVeil from './components/DitherVeil';
+import DitherVeil from './components/DeferredDitherVeil';
 import CursorEffects from './components/CursorEffects';
 import ExplorationArt from './components/ExplorationArt';
 
 const email = 'songpeien@163.com';
 const works = [
-  { id: '01', kind: 'virtual', title: 'S · 灵感实验室', en: 'S — VIRTUAL CHARACTER', tag: '交互网页 / WEB', text: '相同的品味，让我们相遇。以数字人物与动态影像为核心，构建一个邀请交流和共同创作的交互页面。', note: '鼠标横移控制影像进度，配合打字机文案、移动端菜单和邮箱复制交互。', url: 'https://s-virtual-character.pages.dev/', cover: 'media/work-s-virtual-character-subject.png' },
+  { id: '01', kind: 'virtual', title: 'S · 灵感实验室', en: 'S — VIRTUAL CHARACTER', tag: '交互网页 / WEB', text: '相同的品味，让我们相遇。以数字人物与动态影像为核心，构建一个邀请交流和共同创作的交互页面。', note: '鼠标横移控制影像进度，配合打字机文案、移动端菜单和邮箱复制交互。', url: 'https://s-virtual-character.pages.dev/', cover: 'media/work-s-virtual-character-subject.webp' },
   { id: '02', kind: 'type', title: '字有引力', en: 'TYPE IN MOTION', tag: '字体 / TYPOGRAPHY', text: '把文字当作形状，让大小、间距与方向成为另一种表达。', note: '用超大字形、紧密字距和裁切，探索文字从阅读到观看的转变。' },
 ];
 function Spark({ className = '' }) {
@@ -97,7 +97,7 @@ function App() {
           <div className="section-kicker"><span>03 / SAY HELLO</span><span>从一句你好开始</span></div>
           <div className="contact-body">
             <div className="contact-title reveal"><span className="small-label">SOMETHING ON YOUR MIND?</span><h2>有个想法？<br/>聊聊<span className="serif">看。</span><span className="contact-arrow">↗</span></h2></div>
-            <DitherVeil className="contact-veil" src={`${import.meta.env.BASE_URL}media/contact-sculpture-iridescent-v2.png`} fit="contain" pattern="floyd" pixelSize={2} inkColor="#ece8f5" paperColor="#101014" revealRadius={200} softness={0.6} linger={1} brightness={0.025} clickBurst/>
+            <DitherVeil className="contact-veil" src={`${import.meta.env.BASE_URL}media/contact-sculpture-iridescent-v2.webp`} fit="contain" pattern="floyd" pixelSize={2} inkColor="#ece8f5" paperColor="#101014" revealRadius={200} softness={0.6} linger={1} brightness={0.025} clickBurst/>
             <div className="contact-art-caption"><span>LET’S MAKE SOMETHING HAPPEN.</span><p>一个新想法，<br/><small>也许就是下一段故事的开始。</small></p></div>
           </div>
           <div className="contact-details"><p>关于作品，关于想法，<br/>或者，只是打个招呼。</p><CopyEmail className="contact-email email-text"/></div>
