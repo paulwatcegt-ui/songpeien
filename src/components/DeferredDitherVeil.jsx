@@ -6,6 +6,9 @@ export default function DeferredDitherVeil({ className, ...props }) {
   const container = useRef(null);
   const [nearby, setNearby] = useState(false);
   useEffect(() => {
+    const node = container.current;
+    if (!node) return;
+    // 不支持观察器时退化为立即加载，保证雕像始终可见。
     if (!('IntersectionObserver' in window)) { setNearby(true); return; }
     const observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) {
@@ -13,7 +16,7 @@ export default function DeferredDitherVeil({ className, ...props }) {
         observer.disconnect();
       }
     }, { rootMargin: '400px 0px' });
-    observer.observe(container.current);
+    observer.observe(node);
     return () => observer.disconnect();
   }, []);
   return <div ref={container} className={className} aria-hidden="true">

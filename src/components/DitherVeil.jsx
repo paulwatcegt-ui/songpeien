@@ -92,8 +92,10 @@ const getBlueNoise = () => {
   blueNoise = data;
   return data;
 };
-const diffuse = (pixels, cols, rows, kernel, levels, rgb, grade) => {
-  const channels = rgb ? 3 : 1, values = new Float32Array(cols * rows * channels);
+// 误差扩散抖动。传入 reuse 可复用上一轮的浮点缓冲，避免每次重算都分配大块内存。
+const diffuse = (pixels, cols, rows, kernel, levels, rgb, grade, reuse) => {
+  const channels = rgb ? 3 : 1, needed = cols * rows * channels;
+  const values = reuse && reuse.length >= needed ? reuse : new Float32Array(needed);
   for (let i = 0; i < cols * rows; i++) {
     const r = pixels[i * 4] / 255, g = pixels[i * 4 + 1] / 255, b = pixels[i * 4 + 2] / 255;
     if (rgb) { values[i * 3] = grade(r); values[i * 3 + 1] = grade(g); values[i * 3 + 2] = grade(b); }
@@ -118,7 +120,7 @@ const diffuse = (pixels, cols, rows, kernel, levels, rgb, grade) => {
       out[p * 4 + 3] = 255;
     }
   }
-  return out;
+  return { data: out, values };
 };
 const vertex = `#version 300 es
 in vec2 position;
@@ -250,6 +252,48 @@ void main() {
 }
 `;
 
+// 笔迹遮罩 pass 的输入，负责拖尾的累积与衰减。
+const createMaskUniforms = masks => ({
+  tPrev: { value: masks[0].texture },
+  uSize: { value: [1, 1] },
+  uFrom: { value: [0, 0] },
+  uTo: { value: [0, 0] },
+  uRadius: { value: 1 },
+  uSoftness: { value: 0.5 },
+  uStrength: { value: 0 },
+  uFade: { value: 1 },
+  uHold: { value: HOLD }
+});
+
+// 最终呈现 pass 的输入：图像、遮罩、蓝噪声、扩散纹理与全部外观参数。
+const createViewUniforms = (imageTexture, noiseTexture, diffusedTexture, masks) => ({
+  tImage: { value: imageTexture },
+  tMask: { value: masks[0].texture },
+  tNoise: { value: noiseTexture },
+  tDiffused: { value: diffusedTexture },
+  uResolution: { value: [1, 1] },
+  uCover: { value: [1, 1] },
+  uLod: { value: 0 },
+  uCell: { value: 3 },
+  uPattern: { value: 0 },
+  uPalette: { value: 0 },
+  uLevels: { value: 2 },
+  uInk: { value: [0, 0, 0] },
+  uPaper: { value: [1, 1, 1] },
+  uRimColor: { value: [1, 1, 1] },
+  uRim: { value: 0 },
+  uContrast: { value: 1 },
+  uBrightness: { value: 0 },
+  uReverse: { value: 0 },
+  uIntro: { value: 0 },
+  uHold: { value: HOLD },
+  uMatte: { value: [0, 0, 0] },
+  uKey: { value: 0 },
+  uSize: { value: [1, 1] },
+  uBursts: { value: Array.from({ length: MAX_BURSTS * 4 }, () => 0) },
+  uBurstWidth: { value: 60 }
+});
+
 export default function DitherVeil({
   src = DEFAULT_SRC, fit = 'contain', pattern = 'floyd', pixelSize = 2, levels = 2,
   palette = 'duotone', inkColor = '#ece8f5', paperColor = '#101014', contrast = 1.15,
@@ -262,6 +306,7 @@ export default function DitherVeil({
     settingsRef.current = { fit, pattern, pixelSize, levels, palette, inkColor, paperColor, contrast, brightness, revealRadius, softness, linger, rimColor, rim, reverse, wander, clickBurst };
     wakeRef.current();
   });
+  // 建立 WebGL2 上下文与画布；环境不支持时直接放弃，保留静态底图。
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -274,6 +319,7 @@ export default function DitherVeil({
     if (!renderer.isWebgl2) { renderer.gl.getExtension('WEBGL_lose_context')?.loseContext(); return; }
     const gl = renderer.gl, canvas = gl.canvas;
     container.appendChild(canvas);
+    // 半浮点缓冲能保留更平滑的拖尾衰减，缺失时退回 8 位。
     const floatMask = !!renderer.getExtension('EXT_color_buffer_float');
     const geometry = new Triangle(gl);
     const dataTexture = () => new Texture(gl, { image: new Uint8Array(4), width: 1, height: 1, generateMipmaps: false, flipY: false, minFilter: gl.NEAREST, magFilter: gl.NEAREST });
@@ -282,26 +328,19 @@ export default function DitherVeil({
     const createMask = (w, h) => new RenderTarget(gl, { width: w, height: h, depth: false, type: floatMask ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, internalFormat: floatMask ? gl.RGBA16F : gl.RGBA, minFilter: gl.LINEAR, magFilter: gl.LINEAR });
     const destroyMask = target => { gl.deleteFramebuffer(target.buffer); gl.deleteTexture(target.texture.texture); };
     let masks = [createMask(2, 2), createMask(2, 2)];
-    const maskUniforms = {
-      tPrev: { value: masks[0].texture }, uSize: { value: [1, 1] }, uFrom: { value: [0, 0] }, uTo: { value: [0, 0] },
-      uRadius: { value: 1 }, uSoftness: { value: 0.5 }, uStrength: { value: 0 }, uFade: { value: 1 }, uHold: { value: HOLD }
-    };
-    const viewUniforms = {
-      tImage: { value: imageTexture }, tMask: { value: masks[0].texture }, tNoise: { value: noiseTexture }, tDiffused: { value: diffusedTexture },
-      uResolution: { value: [1, 1] }, uCover: { value: [1, 1] }, uLod: { value: 0 }, uCell: { value: 3 }, uPattern: { value: 0 },
-      uPalette: { value: 0 }, uLevels: { value: 2 }, uInk: { value: [0, 0, 0] }, uPaper: { value: [1, 1, 1] }, uRimColor: { value: [1, 1, 1] },
-      uRim: { value: 0 }, uContrast: { value: 1 }, uBrightness: { value: 0 }, uReverse: { value: 0 }, uIntro: { value: 0 },
-      uHold: { value: HOLD }, uMatte: { value: [0, 0, 0] }, uKey: { value: 0 }, uSize: { value: [1, 1] },
-      uBursts: { value: Array.from({ length: MAX_BURSTS * 4 }, () => 0) }, uBurstWidth: { value: 60 }
-    };
+    const maskUniforms = createMaskUniforms(masks);
+    const viewUniforms = createViewUniforms(imageTexture, noiseTexture, diffusedTexture, masks);
     const program = (fragment, uniforms) => new Program(gl, { vertex, fragment, uniforms, depthTest: false, depthWrite: false });
     const maskMesh = new Mesh(gl, { geometry, program: program(maskFragment, maskUniforms) });
     const viewMesh = new Mesh(gl, { geometry, program: program(viewFragment, viewUniforms) });
     const sampler = document.createElement('canvas'), samplerContext = sampler.getContext('2d', { willReadFrequently: true });
     let image = null, introStart = 0, diffusedKey = '', diffusionBlocked = false;
+    // 复用误差扩散的中间浮点缓冲，避免每次重算都分配数 MB 内存。
+    let diffusedBuffer = null;
     let width = 1, height = 1, visible = false, raf = 0, last = performance.now(), trailUntil = 0, presence = 0, drift = 0, disposed = false, hasRendered = false;
     const pointer = { x: 0, y: 0, inside: false, fresh: true, placed: false };
     const brush = { x: 0, y: 0, px: 0, py: 0 }, bursts = [];
+    // 尺寸同步：容器变化时重设画布，并按需重建双缓冲遮罩。
     const layout = () => {
       width = Math.max(1, container.clientWidth); height = Math.max(1, container.clientHeight);
       renderer.setSize(width, height);
@@ -311,7 +350,8 @@ export default function DitherVeil({
       if (!pointer.placed) { pointer.x = width / 2; pointer.y = height / 2; }
     };
     const updateDiffusion = (cell, s) => {
-      if (!image || !samplerContext) return;
+      // 图像不可用或尺寸为 0 时保留上一帧纹理，避免除零产生 NaN。
+      if (!image || !samplerContext || !image.naturalWidth || !image.naturalHeight) return;
       const cols = Math.ceil(canvas.width / cell), rows = Math.ceil(canvas.height / cell);
       const key = [s.pattern, s.levels, s.palette, s.contrast, s.brightness, s.fit, cols, rows, canvas.width, canvas.height].join('|');
       if (key === diffusedKey) return;
@@ -325,11 +365,15 @@ export default function DitherVeil({
       const sw = ((cols * cell) / canvas.width) * cx * iw, sh = ((rows * cell) / canvas.height) * cy * ih;
       const x0 = Math.max(sx, 0), y0 = Math.max(sy, 0), x1 = Math.min(sx + sw, iw), y1 = Math.min(sy + sh, ih);
       if (x1 > x0 && y1 > y0) samplerContext.drawImage(image, x0, y0, x1 - x0, y1 - y0, ((x0 - sx) / sw) * cols, ((y0 - sy) / sh) * rows, ((x1 - x0) / sw) * cols, ((y1 - y0) / sh) * rows);
-      const grade = v => Math.pow(Math.min(1, Math.max(0, (v - 0.5) * s.contrast + 0.5 + s.brightness)), 1.6);
+      const { contrast: gradeContrast, brightness: gradeBrightness } = s;
+      const grade = v => Math.pow(Math.min(1, Math.max(0, (v - 0.5) * gradeContrast + 0.5 + gradeBrightness)), 1.6);
       const pixels = samplerContext.getImageData(0, 0, cols, rows).data;
-      diffusedTexture.image = diffuse(pixels, cols, rows, KERNELS[s.pattern], Math.max(2, Math.round(s.levels)), s.palette === 'rgb', grade);
+      const result = diffuse(pixels, cols, rows, KERNELS[s.pattern], Math.max(2, Math.round(s.levels)), s.palette === 'rgb', grade, diffusedBuffer);
+      diffusedBuffer = result.values;
+      diffusedTexture.image = result.data;
       diffusedTexture.width = cols; diffusedTexture.height = rows; diffusedTexture.needsUpdate = true;
     };
+    // 单帧：推进笔迹与涟漪 → 渲染遮罩 pass → 合成最终画面。
     const frame = now => {
       raf = 0;
       const s = settingsRef.current;
@@ -359,7 +403,9 @@ export default function DitherVeil({
       maskUniforms.uStrength.value = presence; maskUniforms.uFade.value = Math.max(fade, minFade); viewUniforms.uBurstWidth.value = Math.max(60, s.revealRadius * 0.9);
       renderer.render({ scene: maskMesh, target: masks[1] }); masks.reverse(); brush.px = brush.x; brush.py = brush.y;
       const cell = Math.max(1, Math.round(s.pixelSize * renderer.dpr));
-      if (image) viewUniforms.uCover.value = fitScale(canvas.width, canvas.height, image.naturalWidth, image.naturalHeight, s.fit === 'contain');
+      if (image && image.naturalWidth && image.naturalHeight) {
+        viewUniforms.uCover.value = fitScale(canvas.width, canvas.height, image.naturalWidth, image.naturalHeight, s.fit === 'contain');
+      }
       let patternIndex = ORDERED[s.pattern] ?? 0;
       if (KERNELS[s.pattern]) {
         patternIndex = 0;
@@ -377,6 +423,7 @@ export default function DitherVeil({
       const busy = pointer.inside || wanderOn || presence > 0.002 || bursts.length > 0 || now < trailUntil || (image && intro < 1);
       if (busy && visible) raf = requestAnimationFrame(frame);
     };
+    // 唤醒渲染循环；已在运行、不可见或已销毁时不重复申请 rAF。
     const wake = () => {
       if (raf || !visible || document.hidden || disposed) return;
       last = performance.now(); raf = requestAnimationFrame(frame);
@@ -390,6 +437,7 @@ export default function DitherVeil({
       introStart = performance.now(); wake();
     };
     img.src = src;
+    // 把视口坐标换算成容器内的相对坐标。
     const locate = e => { const rect = container.getBoundingClientRect(); pointer.x = e.clientX - rect.left; pointer.y = e.clientY - rect.top; pointer.placed = true; };
     const onMove = e => { locate(e); if (!pointer.inside) { pointer.inside = true; pointer.fresh = true; } wake(); };
     const onLeave = () => { pointer.inside = false; wake(); };
@@ -403,15 +451,18 @@ export default function DitherVeil({
     const onMotionChange = e => { reducedMotion = e.matches; bursts.length = 0; wake(); };
     const onVisibility = () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; pointer.inside = false; } else wake(); };
     const onContextLost = e => { e.preventDefault(); cancelAnimationFrame(raf); raf = 0; setReady(false); };
+    // 指针与页面可见性监听；全部 passive，避免阻塞滚动。
     const events = { pointermove: onMove, pointerenter: onMove, pointerdown: onDown, pointerup: onUp, pointerleave: onLeave, pointercancel: onLeave };
     Object.entries(events).forEach(([name, handler]) => container.addEventListener(name, handler, { passive: true }));
     motionQuery.addEventListener('change', onMotionChange); document.addEventListener('visibilitychange', onVisibility); canvas.addEventListener('webglcontextlost', onContextLost);
+    // 容器尺寸变化与进出视区：重排并按需唤醒或暂停渲染。
     const resizeObserver = new ResizeObserver(() => { layout(); wake(); }); resizeObserver.observe(container);
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (!visible) { cancelAnimationFrame(raf); raf = 0; pointer.inside = false; } else wake();
     }); intersectionObserver.observe(container);
     layout();
+    // 卸载：停止循环、解绑监听、释放 GL 资源并移除画布。
     return () => {
       disposed = true; cancelAnimationFrame(raf); wakeRef.current = () => {};
       resizeObserver.disconnect(); intersectionObserver.disconnect(); img.onload = null;
