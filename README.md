@@ -6,15 +6,23 @@ React + Vite 个人网站，所有页面使用炭黑底色（#101014）与柔白
 
 安装 Node.js 后运行 `npm install`、`npm run dev`。
 
-本地地址：http://127.0.0.1:4173/ 。生产构建：`npm run build`。
+本地地址：http://127.0.0.1:5175/ 。生产构建：`npm run build`。
+
+### Windows 稳定启动
+
+双击根目录的 `启动网站.cmd`。它使用项目内的便携 Node.js，将隐藏运行的 `Run-Website.ps1` 注册为当前用户的 Windows 计划任务 `SongPeienLocalWebsite`，并打开浏览器。守护脚本在 Vite 退出后间隔 3 秒重新启动；任务配置登录启动、失败重启和每分钟重复触发，运行期间忽略重复启动。此任务仅监听本机 `127.0.0.1:5175`。电脑休眠、关机或用户注销期间，本地网站不可访问。
+
+启动与退出记录写入 `.runtime/website-supervisor.log`，最近一次 Vite 输出写入 `.runtime/vite.stdout.log` 和 `.runtime/vite.stderr.log`，用于区分应用错误与外部中断。
+
+双击 `停止网站.cmd` 可停止服务并禁用登录启动；再次运行启动脚本即可恢复。如果以后移动项目，请先停止，再到新目录运行启动脚本以更新任务路径。启动脚本只对自身 PowerShell 进程使用执行策略参数，不更改系统执行策略。诊断入口：Windows 任务计划程序中的上述任务。
 
 工作区已有便携 Node，PowerShell 可直接启动：
 
 ```powershell
-& .\.runtime\node-v22.14.0-win-x64\node.exe .\node_modules\vite\bin\vite.js --host 127.0.0.1 --port 4173 --strictPort
+& .\.runtime\node-v22.14.0-win-x64\node.exe .\node_modules\vite\bin\vite.js --host 127.0.0.1 --port 5175 --strictPort
 ```
 
-本地服务结束或电脑重启后需要重新启动。
+上述命令仅在前台临时运行；日常使用建议通过启动脚本托管服务。
 
 ## 内容
 

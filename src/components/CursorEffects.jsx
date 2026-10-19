@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import './CursorEffects.css';
 
-// Independently written spring-chain trail; no React Bits Pro source or license.
+// Frame-rate independent trail; no external cursor library.
 export default function CursorEffects() {
   useEffect(() => {
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -33,6 +33,7 @@ export default function CursorEffects() {
       const dt = last ? Math.min(.05, (now - last) / 1000) : 1 / 60;
       last = now;
       const rest = now - lastMove;
+      speed *= Math.exp(-dt * 10);
       const alpha = Math.max(0, 1 - Math.max(0, rest - 120) / (reduced.matches ? 220 : 900));
       clear();
       if (alpha <= 0) { stop(); return; }
@@ -45,21 +46,21 @@ export default function CursorEffects() {
           point.y += (target.y - point.y) * follow;
         });
       } else {
-        const steps = Math.max(1, Math.ceil(dt * 120));
-        const step = dt * 60 / steps;
+        // Small steps and non-overshooting following prevent oscillation on turns.
+        const steps = Math.max(1, Math.ceil(dt * 240));
+        const follow = 1 - Math.exp(-dt / steps * 110);
         for (let tick = 0; tick < steps; tick++) {
           points.forEach((point, i) => {
             const target = i ? points[i - 1] : { x: targetX, y: targetY };
-            point.vx += (target.x - point.x) * .7 * step;
-            point.vy += (target.y - point.y) * .7 * step;
-            const friction = Math.pow(.42, step);
-            point.vx *= friction; point.vy *= friction;
-            point.x += point.vx * step; point.y += point.vy * step;
+            point.x += (target.x - point.x) * follow;
+            point.y += (target.y - point.y) * follow;
           });
         }
       }
-      const path = [{ x: targetX, y: targetY }, ...points];
-      const thickness = reduced.matches ? 8 : Math.min(32, 12 + speed * .025);
+      const path = [{ x: targetX, y: targetY }, ...points].filter((point, i, all) =>
+        !i || Math.hypot(point.x - all[i - 1].x, point.y - all[i - 1].y) > .25);
+      if (path.length < 2) { stop(); return; }
+      const thickness = reduced.matches ? 6 : Math.min(20, 8 + speed * .015);
       // One filled silhouette avoids seams between separately stroked segments.
       const left = [], right = [];
       path.forEach((point, i) => {
@@ -88,7 +89,10 @@ export default function CursorEffects() {
     const move = event => {
       if (!enabled || event.pointerType === 'touch') return;
       const now = performance.now(), x = event.clientX, y = event.clientY;
-      if (!points.length) points = Array.from({ length: reduced.matches ? 12 : 40 }, () => ({ x, y, vx: 0, vy: 0 }));
+      if (!points.length) {
+        targetX = x; targetY = y; lastMove = now;
+        points = Array.from({ length: reduced.matches ? 12 : 28 }, () => ({ x, y }));
+      }
       const distance = Math.hypot(x - targetX, y - targetY);
       speed = Math.min(800, distance / Math.max(8, now - lastMove) * 1000);
       targetX = x; targetY = y; lastMove = now;
@@ -96,6 +100,7 @@ export default function CursorEffects() {
     };
     const change = () => { enabled = fine.matches; stop(); };
     const visibility = () => { if (document.hidden) stop(); };
+    const leave = event => { if (!event.relatedTarget) stop(); };
     const layer = () => {
       const host = document.querySelector('dialog[open]') || document.body;
       if (canvas.parentNode !== host) { host.appendChild(canvas); stop(); }
@@ -104,6 +109,7 @@ export default function CursorEffects() {
     document.querySelectorAll('dialog').forEach(dialog => observer.observe(dialog, { attributes: true, attributeFilter: ['open'] }));
     document.addEventListener('pointermove', move, { passive: true });
     document.documentElement.addEventListener('pointerleave', stop);
+    document.addEventListener('pointerout', leave);
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener('blur', stop); window.addEventListener('resize', resize);
     fine.addEventListener('change', change); reduced.addEventListener('change', change);
@@ -112,6 +118,7 @@ export default function CursorEffects() {
       stop(); observer.disconnect(); canvas.remove();
       document.removeEventListener('pointermove', move);
       document.documentElement.removeEventListener('pointerleave', stop);
+      document.removeEventListener('pointerout', leave);
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('blur', stop); window.removeEventListener('resize', resize);
       fine.removeEventListener('change', change); reduced.removeEventListener('change', change);
