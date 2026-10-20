@@ -6,3 +6,29 @@ dist/
 !.env.example
 .netlify/
 release/
+
+# Logs, caches, temporary output
+*.log
+.cache/
+.vite/
+coverage/
+*.tmp
+*.temp
+*.swp
+*.swo
+*.tsbuildinfo
+
+# Local credentials (keep the empty .env.example template)
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OS and editor-local files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vs/
+.idea/
+.vscode/*.local.json

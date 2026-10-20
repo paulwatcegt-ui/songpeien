@@ -1,77 +1,315 @@
-# 宋培恩 — 作品与探索
+# 宋培恩个人网站 · 交接说明
 
-React + Vite 个人网站，所有页面使用炭黑底色（#101014）与柔白文字，最大内容版心 1700px，适配桌面和手机。作品卡片中的配色属于作品图像。
+> 本文件面向接手的开发者或 AI。读完后无需其他上下文即可继续开发。
+> 最后更新：2026-10-19
 
-## 运行
+---
 
-安装 Node.js 后运行 `npm install`、`npm run dev`。
+## 1. 项目目标与功能范围
 
-本地地址：http://127.0.0.1:5175/ 。生产构建：`npm run build`。
+**目标**：宋培恩（SONG PEIEN）的个人作品与探索空间。一个单页站点，用克制的动效和深色排版展示作品、介绍本人、提供联系方式。
 
-### Windows 稳定启动
+**功能范围**
 
-双击根目录的 `启动网站.cmd`。它使用项目内的便携 Node.js，将隐藏运行的 `Run-Website.ps1` 注册为当前用户的 Windows 计划任务 `SongPeienLocalWebsite`，并打开浏览器。守护脚本在 Vite 退出后间隔 3 秒重新启动；任务配置登录启动、失败重启和每分钟重复触发，运行期间忽略重复启动。此任务仅监听本机 `127.0.0.1:5175`。电脑休眠、关机或用户注销期间，本地网站不可访问。
+- 单页四段式结构：首屏（`#home`）→ 关于（`#about`）→ 作品（`#work`）→ 联系（`#contact`），无路由、无后端。
+- 首屏双手靠近—触碰—分开的循环动画。
+- 关于段的人像故障切片艺术图。
+- 作品列表：一张真实上线作品卡片 + 一张布局示意图卡片，点开为原生 `<dialog>` 详情。
+- 联系段的雕像点阵交互（WebGL），鼠标划过显露虹彩、点击产生涟漪。
+- 全站光标弹性拖尾（Canvas）。
+- 部署为纯静态站点，生产构建产物是 `dist/`。
 
-启动与退出记录写入 `.runtime/website-supervisor.log`，最近一次 Vite 输出写入 `.runtime/vite.stdout.log` 和 `.runtime/vite.stderr.log`，用于区分应用错误与外部中断。
+**明确不做的事**：没有 CMS、没有表单提交、没有用户系统、没有服务端逻辑，联系只靠 `mailto:` 和邮箱复制。
 
-双击 `停止网站.cmd` 可停止服务并禁用登录启动；再次运行启动脚本即可恢复。如果以后移动项目，请先停止，再到新目录运行启动脚本以更新任务路径。启动脚本只对自身 PowerShell 进程使用执行策略参数，不更改系统执行策略。诊断入口：Windows 任务计划程序中的上述任务。
+---
 
-工作区已有便携 Node，PowerShell 可直接启动：
+## 2. 技术栈与版本要求
 
-```powershell
-& .\.runtime\node-v22.14.0-win-x64\node.exe .\node_modules\vite\bin\vite.js --host 127.0.0.1 --port 5175 --strictPort
+| 项 | 说明 |
+|---|---|
+| 框架 | React 19（`react@^19.0.0`、`react-dom@^19.0.0`） |
+| 构建 | Vite 6（`vite@^6.0.0`，devDependency） |
+| WebGL | `ogl@^1.0.11`（仅用于联系段雕像点阵） |
+| Node.js | `.node-version` 声明 **22.14.0**；Vite 6 要求 Node ≥ 18，22.x 全系可用（本机实际跑 22.22.2） |
+| 样式 | 原生 CSS（四个文件），**未使用 Tailwind / CSS-in-JS** |
+| 语言 | 纯 JavaScript + JSX，**不是 TypeScript**（`jsconfig.json` 只提供 `@/*` 路径别名供 IDE 使用） |
+
+**没有 `vite.config.js`**。所有构建与开发参数都在 `package.json` 的 scripts 里，见第 4 节。
+
+依赖总数只有 4 个（3 运行时 + 1 开发），**不要随意新增依赖**——项目刻意保持轻量。
+
+---
+
+## 3. 目录结构
+
+```
+.
+├── index.html                 入口 HTML（仅一个空 #root 容器 + meta）
+├── package.json               依赖与脚本
+├── package-lock.json          锁定版本（CI 用 npm ci）
+├── .node-version              Node 版本约定：22.14.0
+├── jsconfig.json              @/* → src/* 路径别名（IDE 用）
+├── components.json            shadcn 配置残留，实际未使用（见 6.3）
+├── .env.example               环境变量占位（实际不需要，见 4.3）
+├── netlify.toml               Netlify 部署配置（备用平台）
+├── .github/workflows/pages.yml  CI：仅验证 npm ci + npm run build
+├── .openai/hosting.json       静态托管元数据（directory: dist）
+│
+├── src/
+│   ├── main.jsx               页面骨架、作品数据、作品弹窗（核心文件）
+│   ├── styles.css             基础布局、关于段、作品段、弹窗
+│   ├── hero.css               首屏与双手动画
+│   ├── contact.css            联系段排版
+│   └── components/
+│       ├── HeroHands.jsx      首屏双手循环（CSS 动画驱动）
+│       ├── ExplorationArt.jsx 关于段人像
+│       ├── DitherVeil.jsx     雕像点阵 WebGL（429 行，含 GLSL）
+│       ├── DitherVeil.css     点阵容器样式
+│       ├── DeferredDitherVeil.jsx  上面组件的懒加载包装
+│       ├── CursorEffects.jsx  光标拖尾（Canvas，28 个跟随点）
+│       └── CursorEffects.css  光标层样式
+│
+├── public/
+│   ├── favicon.svg
+│   └── media/                 静态素材（见 3.1）
+│
+├── Start-Website.ps1          Windows 守护：注册计划任务
+├── Stop-Website.ps1           Windows 守护：停止并禁用
+├── Run-Website.ps1            Windows 守护：supervisor 主循环
+├── Resolve-Node.ps1           Windows 守护：Node 路径解析（被上两者 dot-source）
+├── Run-Website.vbs            Windows 守护：无窗口启动器
+├── 启动网站.cmd / 停止网站.cmd  双击入口
+│
+├── README-legacy.md           上一版说明（含素材生成提示词等历史细节，可查证）
+└── CODE_REVIEW.md             2026-10-19 的代码审查报告，第 6 节问题来源
 ```
 
-上述命令仅在前台临时运行；日常使用建议通过启动脚本托管服务。
+### 3.1 `public/media/` 素材说明
 
-## 内容
+| 文件 | 用途 | 是否被代码引用 |
+|---|---|---|
+| `reaching-hands-silver-v2.webp` | 首屏双手 | ✓ |
+| `about-glitch-portrait-cutout.webp` | 关于段人像 | ✓ |
+| `contact-sculpture-iridescent-v2.webp` | 联系段雕像 | ✓ |
+| `work-s-virtual-character-subject.webp` | 作品 01 封面 | ✓ |
+| `work-type.svg` / `work-geometry.svg` / `work-color.svg` | 作品 02 及历史抽象构图 | 部分 |
+| `contact-field.svg` | 联系段装饰 | ✓ |
+| `*.png`（6 个） | 上述 webp 的**原始大图源文件** | ✗ 未引用，共约 7.8 MB |
+| `*.md`（3 个） | 素材生成的完整提示词，存档用 | ✗ |
 
-### 加载优化
+`asset-prompts-v2.md`、`hero-image-prompt.md`、`iridescent-sculpture-prompt.md` 记录了图片的生成提示词，重新生成素材时直接复用。
 
-- 页面使用四张 WebP 展示素材，合计约 607 KB；原 PNG 保留作为源文件。首屏双手继续优先加载，关于和作品图片延迟加载。
-- 联系区通过 `DeferredDitherVeil.jsx` 在距离可视区 400px 时加载雕像组件、ogl 和图片，避免首屏初始化 WebGL。容器保持原尺寸，模块加载期间展示静态雕像。
-- Windows 调试仍使用 Vite 开发服务；生产部署使用 `npm run build` 生成的 `dist`。
+> 6 个 PNG 是源文件而非临时产物，因此保留；若只关心部署体积，可删掉它们（`dist` 只用 webp）。
 
-- 首页、关于、作品、联系四个模块。
-- 姓名：宋培恩 / SONG PEIEN；邮箱：songpeien@163.com。
-- 三组抽象构图为布局示意，非真实项目；卡片和详情均有标注。
-- 首屏银白机械手参考用户提供的图像，素材为 `public/media/reaching-hands-silver-v2.png`。
-- 双手起点按参考图设置，指尖初始位于页面约 34% 和 67% 的横向位置，自动靠近、轻触、再分开；每轮 12 秒，无限循环。光圈本体固定大小和透明度，仅最外缘的彩色光带以 12 秒一轮流转；移出可视区时与双手一起暂停。
-- 根据用户明确要求，双手循环在减少动态效果设置下也保留，其余非必要动效仍尊重系统设置。
-- 联系页中央展示抬头雕像，素材为 `public/media/contact-sculpture-iridescent-v2.png`，通过 DitherVeil 实时生成点阵；鼠标划过显露青蓝、紫粉、橙金虹彩金属渐变，点击产生涟漪。完整提示词见 `public/media/iridescent-sculpture-prompt.md`。
-- 图像通过内置 image_gen 工具生成，完整提示词见 `public/media/asset-prompts-v2.md`。
+---
 
-## 文件与交互
+## 4. 安装与启动
 
-- `src/main.jsx`：页面内容和作品弹窗。
-- `src/styles.css`：基础布局和作品区域。
-- `src/hero.css` 与 `src/components/HeroHands.jsx`：导航、首屏和双手循环。
-- `src/contact.css` 与 `src/components/DitherVeil.jsx`：居中雕像排版和基于 ogl 的交互点阵，源于用户提供的 React Bits 组件。
-- DitherVeil 离开可视区或隐藏标签页时停止渲染；WebGL2 不可用时显示静态底图。
-- 支持锚点导航、当前栏目提示、弹窗 Esc 关闭与焦点恢复。
-- 图片与字体均不依赖远程服务，无后端。
-- 顶部导航只保留居中的“精选作品 / 联系”；关于模块保留在正文中。
-- 联系区侧边文案改为“一个新想法，也许就是下一段故事的开始。”
-- 雕像展示区域已放大，保留居中与左右留白；手机端同步增加展示高度和下方文案间距。
-## 深色主题
+### 4.1 标准流程
 
-- 导航、正文、作品展示、联系页和弹窗均已适配深色；浏览器 theme-color 与 color-scheme 同步。
-- 雕像使用浅色墨点与深色底色，鼠标显露区域保留原始虹彩金属颜色。
-- 无 WebGL 时的静态雕像使用反色灰度和 screen 混合，避免出现白色底块。
-- 双手 12 秒循环与外圈流动动效保留。
+```bash
+npm install
+npm run dev        # → http://127.0.0.1:5175/
+npm run build      # → dist/
+npm run preview    # 预览生产构建，同样是 5175
+```
 
-## 光标效果
+### 4.2 端口是写死的
 
-- 已移除全站及作品图的网格扭曲组件，三张作品使用本地静态 SVG，保留示意项目标注。
-- `src/components/CursorEffects.jsx` 与同名 CSS：参考 Smooth Cursor 公开演示独立编写的弹性流线拖尾，40 个跟随点、连续填充轮廓、柔光与由粗到细的尾部，使用网站淡紫色设计变量。速度越快略微变粗，停止后收拢淡出。保留系统指针；已移除字母方块。
-- 这是项目内独立编写的 Canvas 效果，不依赖 React Bits Pro 或许可密钥。
-- Canvas 装饰不拦截点击和滚动，并跟随原生作品弹窗切换显示层。静止后停止绘制，离开窗口或隐藏标签页时清除并暂停。
-- 仅在支持精确指针与悬停的设备开启，触屏关闭。系统减少动态效果模式使用 12 个快速跟随点和较短的尾部，关闭弹性回摆和柔光。无新增依赖。
+`package.json`：
 
-## GitHub 与 Cloudflare Pages
+```json
+"dev":     "vite --host 127.0.0.1 --port 5175 --strictPort",
+"preview": "vite preview --host 127.0.0.1 --port 5175 --strictPort"
+```
 
-- 源码仓库：`https://github.com/paulwatcegt-ui/songpeien`，生产分支为 `main`。
-- 在 Cloudflare Pages 选择连接 Git，授权这个仓库；构建命令为 `npm run build`，输出目录为 `dist`，根目录使用仓库根目录。
-- Node.js 版本由 `.node-version` 固定为 22.14.0；页面不需要任何生产环境密钥。
-- Pages 完成 Git 连接后，推送 `main` 会自动构建和更新正式网站；本地保存不会直接上线。
-- GitHub Actions 仅验证构建，不再发布到 GitHub Pages。已有 GitHub Pages 站点如需下线，需要在仓库的 Pages 设置中另行取消发布。
+**`--strictPort` 意味着 5175 被占用时直接报错退出，不会自动顺延到 5176。** 换端口必须同时改三处：`package.json` 的 dev、preview，以及 `Run-Website.ps1` 里的端口判断与启动参数（全文共 9 处出现 5175）。
+
+只监听 `127.0.0.1`，局域网内其他设备访问不到，这是有意的。
+
+### 4.3 环境变量
+
+**不需要配置任何环境变量。** 代码只用到 Vite 内置的 `import.meta.env.BASE_URL`。
+
+`.env.example` 里的 `REACTBITS_LICENSE_KEY` 是历史遗留：`components.json` 曾用于从 React Bits Pro 拉取组件，但当前代码**没有任何地方引用它**，`package.json` 也没有对应依赖。若将来确实要用 React Bits Pro，把它复制为 `.env.local` 再填值——注意变量名不能加 `VITE_` 前缀，它只是安装凭据，不应进浏览器包。
+
+### 4.4 Windows 常驻启动（可选）
+
+双击 `启动网站.cmd`：
+
+1. `Start-Website.ps1` 用 `Resolve-Node.ps1` 找到 Node（顺序：`.runtime/node-path.txt` 记录 → `.runtime` 内 pinned runtime → PATH → 常见安装位置）；
+2. 把绝对路径写入 `.runtime/node-path.txt`，让计划任务环境也能定位到它；
+3. 注册计划任务 `SongPeienLocalWebsite`（仅登录时触发）；
+4. 任务用 `wscript` 运行 `Run-Website.vbs`，后者无窗口启动 supervisor `Run-Website.ps1`；
+5. supervisor 拉起 Vite，进程退出则 3 秒后重启，循环常驻。
+
+日志在 `.runtime/`：`website-supervisor.log`、`vite.stdout.log`、`vite.stderr.log`。
+
+`停止网站.cmd` 停止服务并禁用登录启动。移动项目后要先停止，再到新位置运行启动脚本——否则旧任务指向老路径，`Start-Website.ps1` 会因 `WorkingDirectory` 不符直接抛错。
+
+**这套守护只在 Windows 有效。** macOS / Linux 上直接用 `npm run dev`。
+
+---
+
+## 5. 已完成功能
+
+### 页面与内容
+- 四段式单页；锚点导航与滚动高亮（`IntersectionObserver`，`rootMargin: -15%/-55%`）。
+- 作品弹窗用原生 `<dialog>` + `showModal()`：Esc 关闭、点背景关闭、关闭后焦点回到触发元素、打开时锁滚动。
+- 响应式：主断点 `760px`，另有 `1150px`、`1100px`、`900px`、`370px` 若干细节断点。
+- 深色主题全站一致（`#101014` 背景），`theme-color` 与 `color-scheme` 同步。
+
+### 动效
+- **双手**：12 秒一轮的靠近—触碰—分开，起点指尖位于页面横向 34% / 67%，离开视区暂停。`prefers-reduced-motion` 下**仍保留**（用户明确要求），其余动效尊重系统设置。
+- **光标拖尾**：28 个跟随点（减少动态时 12 个），连续填充轮廓、由粗到细、速度越快略变粗、停止后收拢淡出。仅精确指针设备启用，触屏关闭。
+- **雕像点阵**：Floyd–Steinberg 抖动扩散 + 鼠标涟漪 + 点击爆发，虹彩调色；离开视区或标签页隐藏时停止渲染；WebGL2 不可用时回落静态图。
+
+### 性能
+- 四张 webp 共约 607 KB，首屏手部 `fetchPriority="high"`，其余 `loading="lazy"`。
+- `DeferredDitherVeil` 在距视区 400px 时才 `import()` 雕像组件与 ogl（省下约 69 KB JS）。
+- 抖动扩散改为复用 `Float32Array` 缓冲，避免拖拽窗口时反复分配数 MB。
+
+### 可访问性
+- 对比度实测全部达 WCAG **AAA**（正文 16.64:1、`--muted` 7.69:1、`--blue` 8.31:1）。
+- 有 skip-link、`aria-current` 标当前栏目、`aria-live` 播报复制结果、弹窗有 `aria-labelledby/describedby`。
+
+### 工程
+- GitHub Actions 只做构建校验（不发布）；GitHub Pages 已停用。
+- 生产部署走 Cloudflare Pages（构建 `npm run build`，输出 `dist`）。
+
+---
+
+## 6. 待办事项与已知问题
+
+### 6.1 高优先级
+
+| # | 问题 | 位置 | 建议 |
+|---|---|---|---|
+| 1 | **7.8 MB 未引用 PNG 仍在仓库** | `public/media/*.png` | 移到仓库外存档，或改放 `assets-source/`。Vite 对 `public/` 原样复制，`dist` 因此虚胖 |
+| 2 | **纯 CSR，无 SEO 兜底** | `index.html` | `#root` 是空容器，社交平台抓取不到内容。至少补 `noscript`、OG/Twitter Card、JSON-LD |
+| 3 | **`styles.css` 大量重复覆盖** | `src/styles.css` | 301 个规则块只有 173 个唯一选择器，64 组同条件重复。合并**必须逐组人工核对**，详见 7.3 |
+| 4 | **skip-link 焦点不转移** | `src/main.jsx` 的 `<main id="main">` | 补 `tabIndex={-1}`，否则 Chrome/Safari 只跳转不聚焦 |
+
+### 6.2 中低优先级
+
+- **移动端仍加载 ogl + WebGL**：`DeferredDitherVeil` 只判距离不判设备，移动端可跳过，省 69 KB JS 与 GPU 开销。
+- **抖动扩散在主线程同步执行**：1920×1080@dpr2 约 51.8 万像素 × 6 taps。可考虑降采样或挪到 Worker。
+- **字号过小处较多**：`.art-bottom` 移动端 6px、`.contact-art-caption > span` 7px，会被 Chrome 中文最小 12px 限制撑开布局。
+- **复制邮箱双重播报**：按钮文本变化 + `aria-live` 同时触发，屏幕阅读器可能读两遍。
+- **`DitherVeil.jsx:6` 的 `DEFAULT_SRC`** 指向一个 1.7 MB 的 png 且从不被使用（调用方总是显式传 `src`），属死路径。
+- **README-legacy.md 有过时描述**：写着"40 个跟随点"（实际 28/12）、"每分钟重复触发"（已删除）、"项目内便携 Node"（已改为自动解析）。以本文件为准。
+
+### 6.3 可以忽略的遗留物
+
+- `components.json`：shadcn 配置，`tailwind.config` 为空、项目并未用 Tailwind，实际不生效。
+- `.openai/hosting.json`、`netlify.toml`：多平台部署残留，与 Cloudflare Pages 并存但不冲突。
+- `tech-preview.png`：根目录截图，未引用。
+
+---
+
+## 7. 关键设计决策与代码约定
+
+### 7.1 刻意为之的选择
+
+| 决策 | 原因 |
+|---|---|
+| 单页无路由 | 内容量小，锚点足够；避免引入 router 依赖 |
+| 无后端 | 纯静态可托管到任意 CDN，零运维 |
+| 原生 `<dialog>` | 浏览器自带焦点陷阱与 Esc 关闭，比手写 modal 更可靠 |
+| 依赖只有 4 个 | 刻意保持轻量，动效全部手写而非引库 |
+| `--strictPort` | 守护脚本靠固定端口判断实例存活，端口漂移会让 supervisor 反复拉起多实例 |
+| 端口绑 `127.0.0.1` | 仅本机可见，不暴露到局域网 |
+| PNG 与 webp 并存 | PNG 是源文件，webp 是优化输出版 |
+
+### 7.2 代码约定
+
+- **文案与注释用中文**，标识符用英文。重构后的函数级注释写英文。
+- `main.jsx` 刻意拆成 `SiteHeader` / `HeroSection` / `AboutSection` / `WorksSection`（内嵌 `LiveWorkCard`、`StudyWorkCard`）/ `ContactSection` / `WorkDialog`，**不要再合并回巨型组件**。
+- 组件的 `useEffect` 按职责分节注释，长逻辑拆成具名子函数（见 `DitherVeil`、`CursorEffects`）。
+- 魔法数字提取为文件顶部具名常量（`CursorEffects.jsx` 是范例）。
+- 图片路径统一 `${import.meta.env.BASE_URL}media/xxx`，不要写死 `/media/`，以便部署到子路径。
+- 装饰性元素加 `aria-hidden="true"`；纯装饰 `<img>` 的 `alt` 留空字符串。
+
+### 7.3 CSS 的坑（务必先读）
+
+这个项目的 CSS 是**追加式迭代**的产物，同一属性常被多处覆盖，改之前必须算清哪条生效：
+
+- `src/styles.css` **301 个规则块 / 173 个唯一选择器**，`.about-copy h2` 重复 7 次。
+- 典型：`.about-portrait` 在 74–80 行定义、82–84 行推翻、88–98 行再定义，只有最后一段生效。
+- 特异性相同时**靠书写顺序取胜**。例如 `.work-dialog .art{height:390px}` 与 `.work-dialog .art-project{aspect-ratio:...}` 同为 `(0,2,0)`，后者必须写在后面才生效。
+- `hero.css` 用 `!important` 对抗 `styles.css` 顶部的全局 reduce-motion 禁用，属既成事实。
+- **不要自动合并重复规则**：若两次出现之间夹了同样作用于该元素的规则，把后者前移会改变层叠结果。审查时已验证 64 组中 0 组可自动化安全合并。
+
+### 7.4 响应式约定
+
+主断点 `760px`。作品区在 `900px` 以下从"左图右文"变单栏堆叠。封面统一用 `object-fit: contain` 保证不裁切不变形，容器比例与图片实际比例保持一致（作品 01 是 `1916/904`）。
+
+---
+
+## 8. 数据结构与组件接口
+
+### 8.1 作品数据 `works`（`src/main.jsx` 顶部）
+
+```js
+{
+  id:    '01',                    // 显示为 /01
+  kind:  'virtual',               // 决定卡片样式类 work-<kind>；已有 virtual / type / geometry / color
+  title: '虚拟人实验室',            // 卡片与弹窗标题
+  en:    'S — VIRTUAL CHARACTER', // 弹窗里的小标签
+  tag:   '交互网页 / WEB',         // 仅示意卡片显示
+  text:  '…',                     // 作品描述
+  note:  '…',                     // 弹窗补充说明
+  url:   'https://…',             // 可选。有 url → LiveWorkCard（出站链接）；无 → StudyWorkCard（标注"布局示意"）
+  cover: 'media/xxx.webp'         // 可选。有 cover → 用真实截图；无 → 用 work-<kind>.svg 抽象构图
+}
+```
+
+**新增作品只需往数组里加一项**，`WorksSection` 会自动按有无 `url` 选卡片类型。
+
+### 8.2 `DitherVeil` props（`src/components/DitherVeil.jsx`）
+
+| prop | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `src` | string | `DEFAULT_SRC` | 底图地址 |
+| `fit` | `'cover' \| 'contain'` | `'cover'` | 底图适配方式 |
+| `pattern` | `'floyd' \| 'atkinson'` | — | 抖动核 |
+| `pixelSize` | number | `3` | 点阵粒度（越小越细） |
+| `inkColor` / `paperColor` | string | — | 点阵墨色 / 纸色 |
+| `revealRadius` / `softness` | number | — | 鼠标显露半径 / 边缘柔化 |
+| `linger` | number | — | 鼠标离开后停留时间 |
+| `brightness` / `contrast` | number | — | 预处理亮度 / 对比度 |
+| `clickBurst` | boolean | `false` | 点击是否产生涟漪 |
+| `className` | string | — | 容器类名 |
+
+`DeferredDitherVeil` 透传全部 props，额外只做懒加载：距视区 400px 内才挂载，加载期间显示静态 `<img>` 兜底。
+
+### 8.3 其他组件
+
+- `CursorEffects`：无 props，挂载即生效，自动按 `(hover: hover) and (pointer: fine)` 与 `prefers-reduced-motion` 决定行为。
+- `HeroHands`：无 props，图片源由内部常量 `HAND_SRC` 决定。
+- `ExplorationArt`：无 props，固定一张图。
+- `CopyEmail({ className })`：可复用按钮，点击复制 `email` 并做无障碍播报。
+
+### 8.4 全局常量
+
+- `email = 'songpeien@163.com'`（`src/main.jsx` 顶部）
+- 设计变量在 `styles.css` 的 `:root`：`--paper:#101014` `--ink:#f1eff5` `--muted:#a6a3b2` `--orange:#ff542a` `--blue:#a4a2ff` `--line:#ffffff26`
+
+---
+
+## 9. 下一步入手点
+
+1. **先跑起来确认基线**：`npm install && npm run dev`，打开 5175，滚一遍四个段落，确认动效都正常。
+2. **要减体积**：删 `public/media/*.png`（7.8 MB）并把 `DitherVeil.jsx:6` 的 `DEFAULT_SRC` 改成 webp，`dist` 立刻从 8.8 MB 降到约 1 MB。零风险。
+3. **要改样式**：先读 7.3，明确哪条规则真正生效，再动手。
+4. **要加作品**：只改 `works` 数组（8.1），其余无需变动。
+5. **要补 SEO**：`index.html` 里加 `noscript` 静态摘要 + OG/Twitter Card + JSON-LD，不动 React 代码。
+6. **要上线**：推 `main` 分支，Cloudflare Pages 自动构建部署。本地 `dist` 不会自动上传。
+
+---
+
+## 附：相关资源
+
+- 仓库：`https://github.com/paulwatcegt-ui/songpeien`（生产分支 `main`）
+- 线上：Cloudflare Pages 项目，构建命令 `npm run build`，输出 `dist`
+- 关联项目（作品 01 的实际站点）：`https://s-virtual-character.pages.dev/`，源码在另一仓库 `D:\CodexWork\虚拟形象设计`（React + TS + Three.js）
