@@ -1,7 +1,32 @@
 # 宋培恩个人网站 · 交接说明
 
 > 本文件面向接手的开发者或 AI。读完后无需其他上下文即可继续开发。
-> 最后更新：2026-10-19
+> 最后更新：2026-10-24
+
+> 版本管理：用户已于 2026-10-24 明确授权将本轮累计改动提交并推送至 `origin/main`；下文“未提交、未推送”描述的是各轮完成当时的状态。
+
+## myGym 作品接入（2026-10-24）
+
+- myGym 已替换原“字有引力”示意作品，并按最新要求置于首位 `/01`，虚拟人实验室调整为第二位 `/02`；标题、封面、介绍及详情随作品整体换位，无 JavaScript 兜底顺序同步。
+- myGym 区块标题为“训练，让每一次坚持被看见。”，介绍明确说明基于 openGym 二次开发。
+- 作品简介已简述相较 openGym 的改动：内置动作编辑与隐藏、筛选偏好保存、中文资料补齐、累计时长展示、进度照片操作及 AI 问答与教练记忆；卡片、弹窗和无 JavaScript 兜底同步。
+- 简介增加 DeepSeek、豆包等国产模型 API 接入说明；myGym 的 `maintenance` 字段在卡片和弹窗中以浅紫底色与左侧强调线突出持续维护及下载体验提示，无 JavaScript 版本同步显示。
+- 两个真实作品共用 `LiveWorkCard` 和 `WorkHeading`：桌面左图右文，900px 及以下上下排列；点击封面查看原生弹窗，卡片与弹窗均提供新标签页官网链接。
+- 新封面 `public/media/work-mygym-cover.jpg` 原样复制自关联项目的 `website/img/og-cover.2eb0a04787.jpg`（1200×630、45,545 字节）。由品牌排版和使用演示数据的真实 Web 界面组成，不含用户训练数据及第三方动作媒体；不将其描述为用户真机截图。历史 SVG 素材保留。
+- `works` 为每项提供 `heading`、`intro`、`coverWidth`、`coverHeight`、`coverBackground`；封面组件以 CSS 变量同步容器比例和底色。虚拟人封面保持 1916×904，myGym 使用 1200×630；无 JavaScript 兜底也包含 myGym 介绍。
+- 已完成生产构建、1440/900/390/320px Chromium 浏览器检查：两作品封面及弹窗比例正确，布局断点正确，无整页横向溢出；Esc、焦点恢复、滚动解锁、官网新标签页链接正常，无脚本异常及本地资源失败。myGym 官网实际访问返回 200。
+- 本轮本地预览：`http://127.0.0.1:5176/#work`。原 5175 端口运行的是旧目录副本，已保留该服务；默认启动脚本的端口仍为 5175。当前项目可用 `npm run dev -- --port 5176` 临时预览。
+- 浏览器检查脚本、报告及截图位于被忽略的 `.runtime/mygym-validation/`。未修改 myGym 源项目，未新增依赖，未提交、推送或部署；保留此前全部未提交修改。
+
+## 本轮续作记录（2026-10-22）
+
+- 接手基线为 `main` @ `a8197aa`，工作区干净；本轮只修改本地文件，未提交、未推送或部署。
+- 6 张 PNG 原图已从 `public/media/` 移至仓库内 `assets-source/`，保留全部源素材，避免 Vite 将其复制到 `dist/`。后文目录表及历史审查中的 PNG 位置以此为准。
+- `DitherVeil` 默认图已改用 WebP；联系区只在支持悬停的精确指针设备加载交互模块，触屏设备在接近视区时显示静态雕像。指针能力变化会同步切换。
+- 已补 `noscript` 介绍、作品链接及邮箱，OG / Twitter 标题和描述、Person JSON-LD；favicon 使用 Vite 的 `BASE_URL`。尚未确认正式域名，所以未虚构 canonical、`og:url`、分享图片绝对地址或 sitemap。
+- 已补正文目标 `tabIndex={-1}`、修正站内联系箭头和作品封面的固有尺寸（1916×904）。弹窗条件标签与邮箱固定无障碍名称在接手前已修好，不再属于待办。
+- 生产构建通过；未做浏览器视觉及屏幕阅读器回归。现有 CSS 与动效设计保留。
+- 仍待处理：CSS 覆盖逐段整理及视觉回归、雕像抖动扩散性能实测、小字号检查、正式域名确认后的分享图片与 sitemap。第 6 节和 `CODE_REVIEW.md` 为历史问题清单，已完成项以上述记录为准。
 
 ---
 
@@ -14,7 +39,7 @@
 - 单页四段式结构：首屏（`#home`）→ 关于（`#about`）→ 作品（`#work`）→ 联系（`#contact`），无路由、无后端。
 - 首屏双手靠近—触碰—分开的循环动画。
 - 关于段的人像故障切片艺术图。
-- 作品列表：一张真实上线作品卡片 + 一张布局示意图卡片，点开为原生 `<dialog>` 详情。
+- 作品列表：虚拟人实验室与 myGym 两张真实作品卡片，点开为原生 `<dialog>` 详情。
 - 联系段的雕像点阵交互（WebGL），鼠标划过显露虹彩、点击产生涟漪。
 - 全站光标弹性拖尾（Canvas）。
 - 部署为纯静态站点，生产构建产物是 `dist/`。
@@ -56,7 +81,7 @@
 ├── .openai/hosting.json       静态托管元数据（directory: dist）
 │
 ├── src/
-│   ├── main.jsx               页面骨架、作品数据、作品弹窗（核心文件）
+│   ├── main.jsx               页面骨架、作品数据、共享卡片与作品弹窗（核心文件）
 │   ├── styles.css             基础布局、关于段、作品段、弹窗
 │   ├── hero.css               首屏与双手动画
 │   ├── contact.css            联系段排版
@@ -91,8 +116,9 @@
 | `reaching-hands-silver-v2.webp` | 首屏双手 | ✓ |
 | `about-glitch-portrait-cutout.webp` | 关于段人像 | ✓ |
 | `contact-sculpture-iridescent-v2.webp` | 联系段雕像 | ✓ |
-| `work-s-virtual-character-subject.webp` | 作品 01 封面 | ✓ |
-| `work-type.svg` / `work-geometry.svg` / `work-color.svg` | 作品 02 及历史抽象构图 | 部分 |
+| `work-s-virtual-character-subject.webp` | 作品 02 虚拟人封面 | ✓ |
+| `work-mygym-cover.jpg` | 作品 01 myGym 黑绿品牌封面 | ✓ |
+| `work-type.svg` / `work-geometry.svg` / `work-color.svg` | 历史抽象构图源素材 | ✗ |
 | `contact-field.svg` | 联系段装饰 | ✓ |
 | `*.png`（6 个） | 上述 webp 的**原始大图源文件** | ✗ 未引用，共约 7.8 MB |
 | `*.md`（3 个） | 素材生成的完整提示词，存档用 | ✗ |
@@ -261,10 +287,13 @@ npm run preview    # 预览生产构建，同样是 5175
   note:  '…',                     // 弹窗补充说明
   url:   'https://…',             // 可选。有 url → LiveWorkCard（出站链接）；无 → StudyWorkCard（标注"布局示意"）
   cover: 'media/xxx.webp'         // 可选。有 cover → 用真实截图；无 → 用 work-<kind>.svg 抽象构图
+  // 当前两个真实作品还提供以下展示数据：
+  // heading: ['标题前半句，', '强调后半句。'], intro: ['简介第一行。', '简介第二行。'],
+  // coverWidth: 1200, coverHeight: 630, coverBackground: '#070b09'
 }
 ```
 
-**新增作品只需往数组里加一项**，`WorksSection` 会自动按有无 `url` 选卡片类型。
+**新增真实作品只需往数组里加一项**，补齐上面的标题、简介、官网和封面尺寸；`WorksSection` 会自动渲染独立标题与共享卡片。当前不再渲染布局示意卡片。
 
 ### 8.2 `DitherVeil` props（`src/components/DitherVeil.jsx`）
 
@@ -312,4 +341,5 @@ npm run preview    # 预览生产构建，同样是 5175
 
 - 仓库：`https://github.com/paulwatcegt-ui/songpeien`（生产分支 `main`）
 - 线上：Cloudflare Pages 项目，构建命令 `npm run build`，输出 `dist`
-- 关联项目（作品 01 的实际站点）：`https://s-virtual-character.pages.dev/`，源码在另一仓库 `D:\CodexWork\虚拟形象设计`（React + TS + Three.js）
+- 关联项目（作品 02 虚拟人实验室）：`https://s-virtual-character.pages.dev/`，源码在另一仓库 `D:\CodexWork\虚拟形象设计`（React + TS + Three.js）
+- 关联项目（作品 01 myGym 官网）：`https://mygym-ckr.pages.dev/`，源码在另一仓库 `D:\CodexWork\基于openGym的二次开发\openGym`。

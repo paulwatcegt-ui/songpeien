@@ -5,6 +5,14 @@ const DitherVeil = lazy(() => import('./DitherVeil'));
 export default function DeferredDitherVeil({ className, ...props }) {
   const container = useRef(null);
   const [nearby, setNearby] = useState(false);
+  const [interactive, setInteractive] = useState(false);
+  useEffect(() => {
+    const pointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setInteractive(pointer.matches);
+    update();
+    pointer.addEventListener('change', update);
+    return () => pointer.removeEventListener('change', update);
+  }, []);
   useEffect(() => {
     const node = container.current;
     if (!node) return;
@@ -20,8 +28,8 @@ export default function DeferredDitherVeil({ className, ...props }) {
     return () => observer.disconnect();
   }, []);
   return <div ref={container} className={className} aria-hidden="true">
-    {nearby && <Suspense fallback={<img className="deferred-sculpture" src={props.src} alt="" decoding="async"/>}>
+    {nearby && (interactive ? <Suspense fallback={<img className="deferred-sculpture" src={props.src} alt="" decoding="async"/>}>
       <DitherVeil {...props}/>
-    </Suspense>}
+    </Suspense> : <img className="deferred-sculpture" src={props.src} alt="" decoding="async"/>)}
   </div>;
 }

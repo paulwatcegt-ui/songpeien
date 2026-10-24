@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Renderer, Program, Mesh, Triangle, Texture, RenderTarget } from 'ogl';
 import './DitherVeil.css';
 
-const DEFAULT_SRC = `${import.meta.env.BASE_URL}media/contact-sculpture-iridescent-v2.png`;
+const DEFAULT_SRC = `${import.meta.env.BASE_URL}media/contact-sculpture-iridescent-v2.webp`;
 const ORDERED = { bayer: 0, noise: 1, lines: 2 };
 const KERNELS = {
   atkinson: [[1, 0, 1 / 8], [2, 0, 1 / 8], [-1, 1, 1 / 8], [0, 1, 1 / 8], [1, 1, 1 / 8], [0, 2, 1 / 8]],
