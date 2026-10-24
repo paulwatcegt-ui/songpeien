@@ -23,7 +23,7 @@ const works = [
     maintenance: '该APP目前还在由本人更新维护，可访问作品链接下载体验。',
     note: '从个人训练习惯出发，在 openGym 的基础上完善中文体验与动作库管理，优化累计训练时长统计和进度照片操作，让日常记录更顺手。',
     url: 'https://mygym-ckr.pages.dev/',
-    cover: 'media/work-mygym-cover.jpg',
+    cover: 'media/work-mygym-cover-v2.jpg',
     coverWidth: 1200,
     coverHeight: 630,
     coverBackground: '#070b09'
