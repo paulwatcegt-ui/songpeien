@@ -1,4 +1,4 @@
 .dither-veil{position:relative;width:100%;height:100%;overflow:hidden;touch-action:pan-y;background:var(--veil-paper,#101014)}
 .dither-veil canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
-.dither-veil-fallback{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1) invert(1);mix-blend-mode:screen;opacity:.8}
+.dither-veil-fallback{display:block;width:100%;height:100%;object-fit:contain;filter:grayscale(1) invert(1);mix-blend-mode:screen;opacity:.8}
 .dither-veil.is-ready .dither-veil-fallback{visibility:hidden}

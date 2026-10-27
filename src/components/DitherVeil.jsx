@@ -302,6 +302,7 @@ export default function DitherVeil({
 }) {
   const containerRef = useRef(null), settingsRef = useRef(null), wakeRef = useRef(() => {});
   const [ready, setReady] = useState(false);
+  const [contextEpoch, setContextEpoch] = useState(0);
   useEffect(() => {
     settingsRef.current = { fit, pattern, pixelSize, levels, palette, inkColor, paperColor, contrast, brightness, revealRadius, softness, linger, rimColor, rim, reverse, wander, clickBurst };
     wakeRef.current();
@@ -313,8 +314,11 @@ export default function DitherVeil({
     setReady(false);
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let reducedMotion = motionQuery.matches;
+    const touchQuery = window.matchMedia('(hover: none), (pointer: coarse)');
+    let touchDevice = touchQuery.matches;
+    let contextLost = false;
     let renderer;
-    try { renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio || 1, 2), alpha: false, antialias: false, webgl: 2 }); }
+    try { renderer = new Renderer({ dpr: touchDevice ? 1 : Math.min(window.devicePixelRatio || 1, 2), alpha: false, antialias: false, webgl: 2 }); }
     catch { return; }
     if (!renderer.isWebgl2) { renderer.gl.getExtension('WEBGL_lose_context')?.loseContext(); return; }
     const gl = renderer.gl, canvas = gl.canvas;
@@ -377,9 +381,9 @@ export default function DitherVeil({
     const frame = now => {
       raf = 0;
       const s = settingsRef.current;
-      if (!s || disposed || !visible || document.hidden) return;
+      if (!s || disposed || contextLost || !visible || document.hidden) return;
       const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
-      const wanderOn = s.wander && !reducedMotion;
+      const wanderOn = (s.wander || touchDevice) && !reducedMotion;
       let targetX = pointer.x, targetY = pointer.y;
       if (!pointer.inside && wanderOn) {
         drift = Math.min(1, drift + dt / 1.2);
@@ -425,7 +429,7 @@ export default function DitherVeil({
     };
     // 唤醒渲染循环；已在运行、不可见或已销毁时不重复申请 rAF。
     const wake = () => {
-      if (raf || !visible || document.hidden || disposed) return;
+      if (raf || !visible || document.hidden || disposed || contextLost) return;
       last = performance.now(); raf = requestAnimationFrame(frame);
     };
     wakeRef.current = wake;
@@ -450,11 +454,13 @@ export default function DitherVeil({
     const onUp = e => { if (e.pointerType !== 'mouse') onLeave(); };
     const onMotionChange = e => { reducedMotion = e.matches; bursts.length = 0; wake(); };
     const onVisibility = () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; pointer.inside = false; } else wake(); };
-    const onContextLost = e => { e.preventDefault(); cancelAnimationFrame(raf); raf = 0; setReady(false); };
+    const onContextLost = e => { e.preventDefault(); contextLost = true; cancelAnimationFrame(raf); raf = 0; setReady(false); };
+    const onContextRestored = () => { if (!disposed) setContextEpoch(epoch => epoch + 1); };
+    const onTouchChange = e => { touchDevice = e.matches; renderer.dpr = touchDevice ? 1 : Math.min(window.devicePixelRatio || 1, 2); layout(); wake(); };
     // 指针与页面可见性监听；全部 passive，避免阻塞滚动。
     const events = { pointermove: onMove, pointerenter: onMove, pointerdown: onDown, pointerup: onUp, pointerleave: onLeave, pointercancel: onLeave };
     Object.entries(events).forEach(([name, handler]) => container.addEventListener(name, handler, { passive: true }));
-    motionQuery.addEventListener('change', onMotionChange); document.addEventListener('visibilitychange', onVisibility); canvas.addEventListener('webglcontextlost', onContextLost);
+    motionQuery.addEventListener('change', onMotionChange); document.addEventListener('visibilitychange', onVisibility); canvas.addEventListener('webglcontextlost', onContextLost); canvas.addEventListener('webglcontextrestored', onContextRestored); touchQuery.addEventListener('change', onTouchChange);
     // 容器尺寸变化与进出视区：重排并按需唤醒或暂停渲染。
     const resizeObserver = new ResizeObserver(() => { layout(); wake(); }); resizeObserver.observe(container);
     const intersectionObserver = new IntersectionObserver(([entry]) => {
@@ -467,13 +473,13 @@ export default function DitherVeil({
       disposed = true; cancelAnimationFrame(raf); wakeRef.current = () => {};
       resizeObserver.disconnect(); intersectionObserver.disconnect(); img.onload = null;
       Object.entries(events).forEach(([name, handler]) => container.removeEventListener(name, handler));
-      motionQuery.removeEventListener('change', onMotionChange); document.removeEventListener('visibilitychange', onVisibility); canvas.removeEventListener('webglcontextlost', onContextLost);
+      motionQuery.removeEventListener('change', onMotionChange); document.removeEventListener('visibilitychange', onVisibility); canvas.removeEventListener('webglcontextlost', onContextLost); canvas.removeEventListener('webglcontextrestored', onContextRestored); touchQuery.removeEventListener('change', onTouchChange);
       masks.forEach(destroyMask);
       [imageTexture, noiseTexture, diffusedTexture].forEach(texture => gl.deleteTexture(texture.texture));
       gl.deleteProgram(maskMesh.program.program); gl.deleteProgram(viewMesh.program.program);
       geometry.remove(); gl.getExtension('WEBGL_lose_context')?.loseContext(); canvas.remove();
     };
-  }, [src]);
+  }, [src, contextEpoch]);
   return <div ref={containerRef} className={`dither-veil ${ready ? 'is-ready ' : ''}${className}`.trim()} style={{ '--veil-paper': paperColor, ...style }} aria-hidden="true">
     <img className="dither-veil-fallback" src={src} alt="" loading="lazy" decoding="async"/>
   </div>;

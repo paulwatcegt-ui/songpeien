@@ -5,7 +5,6 @@ import './hero.css';
 import './contact.css';
 import HeroHands from './components/HeroHands';
 import DitherVeil from './components/DeferredDitherVeil';
-import CursorEffects from './components/CursorEffects';
 import ExplorationArt from './components/ExplorationArt';
 
 const email = 'songpeien@163.com';
@@ -360,7 +359,6 @@ function App() {
   };
 
   return <>
-    <CursorEffects/>
     <a className="skip-link" href="#main">跳至正文</a>
     <SiteHeader active={active}/>
     <main id="main" tabIndex={-1}>
