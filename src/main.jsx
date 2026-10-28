@@ -17,18 +17,37 @@ const works = [
     en: 'MYGYM — PERSONAL TRAINING',
     tag: '健身应用 / APP',
     heading: ['训练，', '让每一次坚持被看见。'],
+    audience: '健身爱好者的宝藏神器',
     intro: ['从训练计划到进步记录。', '让真实的使用习惯，成为改进的起点。'],
     text: '基于 openGym 二次开发的个人健身应用。相比原版，新增内置动作编辑与隐藏、筛选偏好保存，补齐中文动作说明；改为累计训练时长展示，完善进度照片操作，并扩展 AI 问答与教练记忆。支持 DeepSeek、豆包等国产模型 API 接入。',
     maintenance: '该APP目前还在由本人更新维护，可访问作品链接下载体验。',
     note: '从个人训练习惯出发，在 openGym 的基础上完善中文体验与动作库管理，优化累计训练时长统计和进度照片操作，让日常记录更顺手。',
     url: 'https://mygym-ckr.pages.dev/',
-    cover: 'media/work-mygym-cover-v2.jpg',
+    cover: 'media/work-mygym-cover-screens.jpg',
     coverWidth: 1200,
     coverHeight: 630,
     coverBackground: '#070b09'
   },
   {
     id: '02',
+    kind: 'body',
+    title: 'myBody',
+    en: 'MYBODY — BODY JOURNAL',
+    tag: '身体记录 / APP',
+    heading: ['身体变化，', '让每一次记录都有迹可循。'],
+    audience: '为不训练、但关注自身健康的人群打造',
+    intro: ['从日常指标到长期趋势。', '用记录，看见身体的变化。'],
+    text: '支持 Android 与 iOS 的身体变化记录应用。记录体重、围度等指标，查看趋势曲线，对比同角度照片；支持自定义指标、深浅色模式、ZIP 备份与 CSV 导出，数据保存在本机。',
+    maintenance: '该APP目前还在由本人更新维护，可访问作品链接下载体验。',
+    note: '基于 PulseSense 的 MIT 开源代码开发。Android 可安装应用，iPhone 可通过 Safari 添加网页应用到主屏幕；网页端离线资源就绪后可离线记录。记录与照片本地保存，可主动导出备份。',
+    url: 'https://mybodysite.pages.dev/',
+    cover: 'media/work-mybody-cover-screens.jpg',
+    coverWidth: 1200,
+    coverHeight: 630,
+    coverBackground: '#101014'
+  },
+  {
+    id: '03',
     kind: 'virtual',
     title: '虚拟人实验室',
     en: 'S — VIRTUAL CHARACTER',
@@ -214,7 +233,10 @@ function LiveWorkCard({ work, onOpen }) {
 
 function WorkHeading({ work, separated = false }) {
   return <div className={`section-heading${separated ? ' project-heading' : ''} reveal`}>
-    <h2>{work.heading[0]}<span className="serif">{work.heading[1]}</span></h2>
+    <div className="work-heading-copy">
+      <h2>{work.heading[0]}<span className="serif">{work.heading[1]}</span></h2>
+      {work.audience && <p className="project-audience">{work.audience}</p>}
+    </div>
     <p>{work.intro[0]}<br/>{work.intro[1]}</p>
   </div>;
 }

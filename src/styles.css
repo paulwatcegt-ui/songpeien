@@ -165,3 +165,6 @@ button.email-copy:hover{color:var(--blue)}
 
 /* Highlight the app's ongoing maintenance beside the project introduction. */
 .work-live .project-maintenance,.dialog-copy .project-maintenance{padding:12px 14px;border-left:3px solid var(--blue);background:#a4a2ff12;color:var(--ink);font-size:13px;line-height:1.8}
+.work-heading-copy{min-width:0}
+.section-heading .project-audience{margin:12px 0 0;font-size:14px;line-height:1.8;color:#c8c6d0;letter-spacing:.3px}
+@media(max-width:760px){.section-heading .project-audience{font-size:13px}}

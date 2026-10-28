@@ -1,9 +1,21 @@
 # 宋培恩个人网站 · 交接说明
 
 > 本文件面向接手的开发者或 AI。读完后无需其他上下文即可继续开发。
-> 最后更新：2026-10-24
+> 最后更新：2026-10-28
 
 > 版本管理：用户已于 2026-10-24 明确授权将本轮累计改动提交并推送至 `origin/main`；下文“未提交、未推送”描述的是各轮完成当时的状态。
+
+## myBody 作品接入（2026-10-28）
+
+- 最新顺序为 myGym `/01` → myBody `/02` → 虚拟人实验室 `/03`。myGym 标题下新增“健身爱好者的宝藏神器”，myBody 标题下新增“为不训练、但关注自身健康的人群打造”，通过作品数据的 `audience` 字段渲染，无 JavaScript 摘要同步。
+- myGym 最新封面为 `public/media/work-mygym-cover-screens.jpg`，参照 myBody 的深色三屏风格，原生 HTML 排版源码及截图位于 `assets-source/mygym-cover/`；保留此前生成图作为历史素材。
+- 最新展示封面为 `public/media/work-mybody-cover-screens.jpg`：使用用户提供的健康摘要、趋势与照片页面三张真实截图，以深色三屏错落排版替代旧单手机边框。卡片与弹窗同步使用；原图与可编辑排版保存在 `assets-source/mybody-cover/`，历史封面保留。
+- myBody 当前位于 myGym 之后，编号 `/02`，复用现有响应式卡片和原生详情弹窗。作品访问入口已按用户要求更新为官网 `https://mybodysite.pages.dev/`；原 iOS PWA 地址不再作为作品链接。
+- 介绍依据关联项目 `D:\CodexWork\myBody\项目主文件` 的 README 与 PWA 说明：支持 Android 与 iOS、指标记录、趋势曲线、同角度照片对比、自定义指标、深浅色模式、ZIP 备份与 CSV 导出；数据保存在本机。详情区分 Android 安装应用与 iPhone Safari 主屏幕入口，注明基于 PulseSense 的 MIT 源码开发。
+- 最新封面 `public/media/work-mybody-cover-dark.jpg` 为 1200×630 的深色产品排版，背景与主页协调，右侧使用关联项目 `delivery/screenshots/v060-overview-dark.png` 的实际深色应用截图（测试环境数据）。截图与可编辑 HTML 来源保存在 `assets-source/mybody-cover/`；不使用生成图片重绘应用界面。原浅色封面保留作为历史素材。
+- myBody 复用 myGym 的 `maintenance` 强调提示，卡片、弹窗和无 JavaScript 版本均显示“该APP目前还在由本人更新维护，可访问作品链接下载体验。”。
+- 无 JavaScript 的作品摘要同步增加 myBody。2026-10-28 实际浏览器访问项目返回 200，标题为 myBody；未修改关联项目，不自动提交、推送或部署。
+- 生产构建及差异检查通过。Chromium 在 1440/1029/390/320px 下验证封面比例、左右/上下布局、弹窗、Esc 关闭、焦点恢复及官网链接通过，无脚本异常或本地资源错误；记录见 `.runtime/mybody-validation/`。当前本地预览为 `http://127.0.0.1:5176/#work`。
 
 ## myGym 作品接入（2026-10-24）
 
@@ -40,7 +52,7 @@
 - 单页四段式结构：首屏（`#home`）→ 关于（`#about`）→ 作品（`#work`）→ 联系（`#contact`），无路由、无后端。
 - 首屏双手靠近—触碰—分开的循环动画。
 - 关于段的人像故障切片艺术图。
-- 作品列表：虚拟人实验室与 myGym 两张真实作品卡片，点开为原生 `<dialog>` 详情。
+- 作品列表：myGym、虚拟人实验室、myBody 三张真实作品卡片，点开为原生 `<dialog>` 详情。
 - 联系段的雕像点阵交互（WebGL），鼠标划过显露虹彩、点击产生涟漪。
 - 全站光标弹性拖尾（Canvas）。
 - 部署为纯静态站点，生产构建产物是 `dist/`。
