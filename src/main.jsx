@@ -12,6 +12,24 @@ const email = 'songpeien@163.com';
 const works = [
   {
     id: '01',
+    kind: 'todo',
+    title: 'TodoDesk',
+    en: 'TODODESK — ONE TASK AT A TIME',
+    tag: '桌面待办 / APP',
+    heading: ['待办，', '把事情一件件做好。'],
+    audience: '轻巧、本地优先的 Windows 桌面待办应用',
+    intro: ['从整理任务到回看时间。', '留点时间，专心做好眼前的事。'],
+    text: '轻巧、本地优先的 Windows 桌面待办应用。支持任务整理、优先级与拖动排序、时间提醒、任务计时和时间统计，以及归档、回收站与本地备份导入。无需账号，离线使用，让日常安排更有条理。',
+    maintenance: '该APP目前还在由本人更新维护，可访问作品链接下载体验。',
+    note: '支持 Windows 11 x64，官网提供 MSI 安装版与 EXE 便携版。任务计时和时间统计需在设置中分别开启；提醒需要应用运行或最小化，关闭期间错过的提醒会在下次打开时补发。数据保存在本机，可导入 JSON 或 .bak 备份；项目采用 MIT 开源许可。',
+    url: 'https://tododesk.pages.dev/#download',
+    cover: 'media/work-tododesk-cover.jpg',
+    coverWidth: 1200,
+    coverHeight: 630,
+    coverBackground: '#101014'
+  },
+  {
+    id: '02',
     kind: 'fitness',
     title: 'myGym',
     en: 'MYGYM — PERSONAL TRAINING',
@@ -29,7 +47,7 @@ const works = [
     coverBackground: '#070b09'
   },
   {
-    id: '02',
+    id: '03',
     kind: 'body',
     title: 'myBody',
     en: 'MYBODY — BODY JOURNAL',
@@ -47,7 +65,7 @@ const works = [
     coverBackground: '#101014'
   },
   {
-    id: '03',
+    id: '04',
     kind: 'virtual',
     title: '虚拟人实验室',
     en: 'S — VIRTUAL CHARACTER',
